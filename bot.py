@@ -1,15 +1,40 @@
+import os
+import asyncio
+
 import discord
 from discord.ext import commands
+import interactions as int
 
-# Définir les Intents utilisés par le bot
+from dotenv import load_dotenv
+
+#Create .env in the main folder with variable "TOKEN=xxxxxxxxxxx" with "xxxxxxxx" is your token
+#VARIABLE
+serverID=653689680906420235
+
+
+load_dotenv() #Load environement variable 
+
+TOKEN = os.getenv('TOKEN')
+client = int.Client(token=TOKEN)
+
+# Define indent use by bot
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+@client.command(
+    name="start",
+    description="Start the monopoly",
+    scope=serverID #Your server ID
+)
+@commands.has_permissions(administrator=True) #Permission for command
+async def _start(ctx: commands.Context):
+    await ctx.send("LET'SS GOOOOO!")
 
-@bot.command(name='coucou')
-async def coucou(ctx):
-    await ctx.send('Bonjour')
+@client.event
+async def on_ready():
+    print("Ready!")
 
-bot.run('MTEwNjg1MDkwMDY4Mjc0Nzk3NA.GWVQyH.cQaZjpHz9L93B4Ma1Dtq-eHgupkUK75dpXgXb4')
+
+#Connect bot to Discord
+client.start()
