@@ -19,8 +19,8 @@ module.exports = {
     async run(bot, message, args){
 
         let command;
-        if(args.get("command")) {
-            command = bot.commands.get(args.get("command"));
+        if(args["command"]) {
+            command = bot.commands.get(args.args["command"]);
             if(!command) return message.reply("Command not found");
     }
     // If don't put command. So general help
@@ -37,11 +37,11 @@ module.exports = {
         .setThumbnail(bot.user.displayAvatarURL({dynamic: true}))
         .setDescription(`Available commands: \`${bot.commands.size}\`\nAvailable categories: \`${categories.length}\``)
         .setTimestamp()
-        .setFooter({text: "Command of Monop Otter"});
+        .setFooter({ text: 'Command of Monop Otter'});
 
-        categories.sort().forEach(cat => {
+        categories.sort().forEach((cat) => {
             let commands = bot.commands.filter(cmd => cmd.category === cat);
-            Embed.addField(`${cat}`, `${commands.map(cmd => `\`${cmd.name}\` : ${cmd.description}`).join("\n")}`);
+            Embed.addFields({ name: `${cat}`, value: commands.map(cmd => `\`${cmd.name}\` : ${cmd.description}`).join("\n") });
         });
 
         await message.reply({embeds: [Embed]});

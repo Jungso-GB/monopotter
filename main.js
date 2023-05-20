@@ -7,7 +7,7 @@ const loadCommands = require('./Loader/loadCommands');
 const loadEvents = require('./Loader/loadEvents');
 
 const config = require('./token.js'); // Put your token in token.js
-bot.color ="#fffff00"; // Set bot color
+bot.color = "#95A5A6" // Set bot color
 
 bot.commands = new Discord.Collection(); // Create collection of commands
 
