@@ -6,14 +6,14 @@ const { Routes } = require('discord.js');
 
 module.exports = async bot => {
 
-    let command = [];
+    let commands = [];
 
     bot.commands.forEach(async command => {
 
         let slashCommand = new Discord.SlashCommandBuilder()
         .setName(command.name)
         .setDescription(command.description)
-        .setDMPermissions(command.dmPermissions)
+        .setDMPermission(command.dm)
         .setDefaultMemberPermissions(command.permission === "Aucune" ? null : command.permission)
 
         if(command.options?.lenght >= 1) {
