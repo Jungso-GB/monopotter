@@ -19,8 +19,8 @@ module.exports = {
     async run(bot, message, args){
 
         let command;
-        if(args["command"]) {
-            command = bot.commands.get(args.args["command"]);
+        if(args.getString("command")) {
+            command = bot.commands.get(args.getString("command"));
             if(!command) return message.reply("Command not found");
     }
     // If don't put command. So general help
@@ -45,7 +45,19 @@ module.exports = {
         });
 
         await message.reply({embeds: [Embed]});
+        // If user define a command
+        } else {
+            let Embed = new Discord.EmbedBuilder()
+            .setColor(bot.color)
+            .setTitle(`Commmand ${command.name}`)
+            .setThumbnail(bot.user.displayAvatarURL({dynamic: true}))
+            .setDescription(`Name: \`${command.name}\`\nDescription: \`${command.description}\`\nPermission: \`${typeof command.permission !== "bigint" ? command.permission : new Discord.PermissionsBitField(command.permission).toArray(false)}\`\nDM Command: \`${command.dm ? "Yes" : "No"}\`\nCategory: \`${command.category}\``)
+            .setTimestamp()
+            .setFooter({ text: 'Command of Monop Otter'});
+
+            await message.reply({embeds: [Embed]});
         }
+
     }
 }
 
