@@ -2,29 +2,33 @@ const Discord = require('discord.js');
 
 module.exports = {
 
-    name: 'help',
-    description: 'Help about Monop Otter!',
+    name: "help",
+    description: "Help about Monop Otter!",
     permission: "Aucune",
     dm: true,
     category: "Information",
     options: [
         {
-            type: "string",
+            type: "STRING",
             name: "command",
             description: "The command you want to get info about",
             required: false,
         }
     ],
-    
-    async run(bot, message, args){
+
+    async run(bot, interaction, args){
 
         let command;
-        if(args.getString("command")) {
-            command = bot.commands.get(args.getString("command"));
-            if(!command) return message.reply("Command not found");
+        console.log(interaction.options.getString("command"))
+
+        if(interaction.options.getString("command")) {
+            command = bot.commands.get(interaction.options.getString("command"));
+            if(!command) return interaction.reply("Command not found");
     }
+
     // If don't put command. So general help
     if(!command) {
+        console.log(command)
         let categories = []
         bot.commands.forEach(command => {
             // We put the category if it's not already in the array
@@ -44,9 +48,10 @@ module.exports = {
             Embed.addFields({ name: `${cat}`, value: commands.map(cmd => `\`${cmd.name}\` : ${cmd.description}`).join("\n") });
         });
 
-        await message.reply({embeds: [Embed]});
+        await interaction.reply({embeds: [Embed]});
         // If user define a command
         } else {
+            console.log(`Help on Commmand: ${command.name}`)
             let Embed = new Discord.EmbedBuilder()
             .setColor(bot.color)
             .setTitle(`Commmand ${command.name}`)
@@ -55,7 +60,7 @@ module.exports = {
             .setTimestamp()
             .setFooter({ text: 'Command of Monop Otter'});
 
-            await message.reply({embeds: [Embed]});
+            await interaction.reply({embeds: [Embed]});
         }
 
     }

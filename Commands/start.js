@@ -5,7 +5,8 @@ module.exports = {
     name: 'start',
     description: 'Start the Monop Otter!',
     permission: "Aucune",
-    dm: true,
+    category: "Game",
+    dm: false,
     
     async run(bot, message){
 
