@@ -7,6 +7,11 @@ module.exports = {
     permission: "Aucune",
     category: "Game",
     dm: false,
+    /*options: [
+        {
+            autocomplete: false,
+        }
+    ],*/
     
     async run(bot, message){
 
