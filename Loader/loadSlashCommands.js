@@ -18,8 +18,7 @@ module.exports = async bot => {
 
         if(command.options?.length >= 1) {
             for(let i = 0; i < command.options.length; i++) {
-                console.log(`Type:` + command.options[i].type)
-                if(command.options[i].type === "string") {
+                if(command.options[i].type === "STRING") {
                     slashCommand[`add${command.options[i].type.charAt(0).toUpperCase()
                         + command.options[i].type.slice(1).toLowerCase()}Option`]
                     (optionBuilder => 
