@@ -18,10 +18,20 @@ module.exports = async bot => {
 
         if(command.options?.length >= 1) {
             for(let i = 0; i < command.options.length; i++) {
+                console.log(typeof(command.options[i].name))
+                console.log(typeof(command.options[i].description))
+                console.log(typeof(command.options[i].required))
+
+                console.log(command.options[i].type)
+                
+                console.log(`.add${command.options[i].type.charAt(0).toUpperCase()
+                    + command.options[i].type.slice(1).toLowerCase()}Option`)
+
                 // Put in the format capital letter for first caracter. Then put name, description and required.
-                slashCommand[`add${command.options[i].type.slice(0, 1).toLowerCase()
-                + command.options[i].type.slice(1, command.options[i].type.length)}Option`]
-                (options => options.setName(command.options[i].name)
+                slashCommand[`add${command.options[i].type.charAt(0).toUpperCase()
+                    + command.options[i].type.slice(1).toLowerCase()}Option`]
+                (optionBuilder => 
+                optionBuilder.setName(command.options[i].name)
                 .setDescription(command.options[i].description)
                 .setRequired(command.options[i].required))
 
