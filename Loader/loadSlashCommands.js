@@ -18,15 +18,17 @@ module.exports = async bot => {
 
         if(command.options?.length >= 1) {
             for(let i = 0; i < command.options.length; i++) {
-                console.log(typeof(command.options[i].name))
-                console.log(typeof(command.options[i].description))
-                console.log(typeof(command.options[i].required))
-
-                console.log(command.options[i].type)
-                
-                console.log(`.add${command.options[i].type.charAt(0).toUpperCase()
-                    + command.options[i].type.slice(1).toLowerCase()}Option`)
-
+                console.log(`Type:` + command.options[i].type)
+                if(command.options[i].type === "string") {
+                    slashCommand[`add${command.options[i].type.charAt(0).toUpperCase()
+                        + command.options[i].type.slice(1).toLowerCase()}Option`]
+                    (optionBuilder => 
+                    optionBuilder.setName(command.options[i].name)
+                    .setDescription(command.options[i].description)
+                    .setAutocomplete(command.options[i].autocomplete)
+                    .setRequired(command.options[i].required))
+                }
+                else{
                 // Put in the format capital letter for first caracter. Then put name, description and required.
                 slashCommand[`add${command.options[i].type.charAt(0).toUpperCase()
                     + command.options[i].type.slice(1).toLowerCase()}Option`]
@@ -34,11 +36,11 @@ module.exports = async bot => {
                 optionBuilder.setName(command.options[i].name)
                 .setDescription(command.options[i].description)
                 .setRequired(command.options[i].required))
+                }
 
             }
         }
 
-        console.log(slashCommand)
         await commands.push(slashCommand);
     })
     const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);

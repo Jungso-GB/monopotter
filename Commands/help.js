@@ -13,6 +13,7 @@ module.exports = {
             name: "command",
             description: "The command you want to get info about",
             required: false,
+            autocomplete: true,
         }
     ],
 
