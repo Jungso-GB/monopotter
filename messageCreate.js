@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 
-// Event for use command by prefix and not slash
+// Event for use command by prefix and not slash 
 
 /*module.exports = async (bot, message) => {
 
