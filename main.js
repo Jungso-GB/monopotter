@@ -10,7 +10,8 @@ bot.color = "#95A5A6" // Set bot color
 
 bot.commands = new Discord.Collection(); // Create collection of commands
 
-bot.login(process.env.BOT_TOKEN); // Login to Discord
+console.log(process.env.TOKEN)
+bot.login(process.env.TOKEN); // Login to Discord
 
 loadCommands(bot); // Load all commands in collection, to the bot
 loadEvents(bot); // Load all commands in collection, to the bot
