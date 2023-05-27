@@ -1,26 +1,32 @@
-//SDK Firebase
-// Import the functions you need from the SDKs you need
-const firebase = require('firebase')
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// SDK Firebase
+// Importez les fonctions dont vous avez besoin à partir des SDK dont vous avez besoin
+const firebase = require('firebase/app');
+require('firebase/database');
 
-module.exports = async() => {
+let database;
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTHDOMAIN,
-  projectId: process.env.FIREBASE_PROJECTID,
-  storageBucket: process.env.FIREBASE_STORAGEBUCKET,
-  messagingSenderId: process.env.FIREBASE_MSGSENDER,
-  appId: process.env.FIREBASE_APPID,
-  measurementId: process.env.FIREBASE_MEASUREMENTID
+module.exports = async () => {
+  // Vérifiez si l'application Firebase est déjà initialisée
+  if (!firebase.apps.length) {
+    // Votre configuration Firebase
+    const firebaseConfig = {
+      apiKey: process.env.FIREBASE_API_KEY,
+      authDomain: process.env.FIREBASE_AUTHDOMAIN,
+      projectId: process.env.FIREBASE_PROJECTID,
+      storageBucket: process.env.FIREBASE_STORAGEBUCKET,
+      messagingSenderId: process.env.FIREBASE_MSGSENDER,
+      appId: process.env.FIREBASE_APPID,
+      measurementId: process.env.FIREBASE_MEASUREMENTID
+    };
+
+    // Initialisez l'application Firebase
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  // Vérifiez si la base de données est déjà initialisée
+  if (!database) {
+    database = firebase.database();
+  }
+
+  return database;
 };
-
-// Initialize Firebase
-    await firebase.initializeApp(firebaseConfig)
-    let database = firebase.database()
-
-    return database
-}

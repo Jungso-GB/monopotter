@@ -2,7 +2,7 @@
   "name": "monopotter",
   "version": "0.1.0",
   "engines": {
-    "node": "16.6.0"
+    "node": "18"
   },
   "description": "Monopoly in Discord",
   "main": "main.js",
@@ -20,7 +20,8 @@
     "@discordjs/rest": "^1.7.1",
     "discord.js": "^14.11.0",
     "dotenv": "^16.0.3",
-    "firebase": "^9.22.0",
+    "firebase": "^8.6.8",
+    "firebase-admin": "^11.8.0",
     "fs": "^0.0.1-security",
     "npm": "^9.6.7"
   }

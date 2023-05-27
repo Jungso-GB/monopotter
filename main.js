@@ -13,7 +13,6 @@ bot.db = loadDatabase(); // Database
 
 bot.commands = new Discord.Collection(); // Create collection of commands
 
-console.log(process.env.TOKEN)
 bot.login(process.env.TOKEN); // Login to Discord
 
 loadCommands(bot); // Load all commands in collection, to the bot
