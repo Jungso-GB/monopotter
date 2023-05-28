@@ -1,6 +1,5 @@
 //Load Env variables
 require('dotenv').config();
-
 const Discord = require('discord.js');
 const intents = new Discord.IntentsBitField(3276799) // Indents used for the bot
 const bot = new Discord.Client({intents});
@@ -12,6 +11,9 @@ bot.color = "#95A5A6" // Set bot color
 bot.db = loadDatabase(); // Database
 
 bot.commands = new Discord.Collection(); // Create collection of commands
+bot.function = {
+    linkGuildDB: require('./Functions/linkGuildToDB')
+}
 
 bot.login(process.env.TOKEN); // Login to Discord
 
@@ -21,4 +23,7 @@ loadDatabase(); // Database load /! DEFAULT: FIREBASE SYSTEM
 
 console.log("Database Loaded successfully")
 
-
+//When bot join a guild
+bot.on('guildCreate', async (guild) => {
+    await bot.function.linkGuildDB(bot, guild);
+});
