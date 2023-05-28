@@ -1,7 +1,10 @@
+const firebase = require('firebase');
 
 module.exports = async (serversRef, guildId) => {
-    const collections = await serversRef.firestore().listCollections();
-    const collectionExists = collections.some(collection => collection.id === guildId);
-    console.log(collectionExists);
-    return collectionExists;
+  const docRef = serversRef.doc(guildId);
+  const docSnapshot = await docRef.get();
+  const collectionExists = docSnapshot.exists;
+  if(collectionExists == true){return true;
+    }else{
+        return false}
 }

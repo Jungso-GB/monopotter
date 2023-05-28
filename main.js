@@ -1,8 +1,12 @@
-//Load Env variables
+/* Ideas: 
+- Ping people at 8PM to remember to play
+*/
+
 require('dotenv').config();
 const Discord = require('discord.js');
 const intents = new Discord.IntentsBitField(3276799) // Indents used for the bot
 const bot = new Discord.Client({intents});
+
 const loadCommands = require('./Loader/loadCommands');
 const loadEvents = require('./Loader/loadEvents');
 const loadDatabase = require('./Loader/loadDatabase');
