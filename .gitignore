@@ -1,6 +1,10 @@
 #TOKEN FILE
 token.js
 
+#Modules Nodes
+node_modules
+node_modules/
+
 
 # Logs
 logs
