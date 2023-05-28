@@ -5,8 +5,6 @@ module.exports = async (bot, guild) => {
   const db = firebase.firestore();
   const serversRef = db.collection('Servers');
 
-
-
   try {
     // If server doesn't exist, create it
     // Later, verify each variables exists in collection
@@ -19,10 +17,13 @@ module.exports = async (bot, guild) => {
         remainingDays : 0,
         // Other variables can be added here
       });
-      // Sub-Collections
-      serversRef.doc(guild.id).collection('players').set({})
-      serversRef.doc(guild.id).collection('board').set({})
+      const guildDocRef = serversRef.doc(guild.id);
 
+      // Create players sub-collection
+      await guildDocRef.collection('players').doc('dummyDoc').set({});
+
+      // Create board sub-collection
+      await guildDocRef.collection('board').doc('dummyDoc').set({});
   
     console.log(`Collection server created successful for "${guild.name}" (${guild.id})`);
   }else{
