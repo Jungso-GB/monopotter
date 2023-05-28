@@ -15,7 +15,11 @@ module.exports = async (bot, guild) => {
         currentPlayer: "NotStarted",
         diceRoll : 0,
         remainingDays : 0,
-        // Other variables can be added here
+        // Admin variables
+        admin_PlayTime: 10,
+        admin_MaxPlayers: 25,
+        admin_Theme: "default",
+        admin_Money: "$",
       });
       const guildDocRef = serversRef.doc(guild.id);
 
