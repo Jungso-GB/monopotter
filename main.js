@@ -16,6 +16,7 @@ bot.db = loadDatabase(); // Database
 
 bot.commands = new Discord.Collection(); // Create collection of commands
 bot.function = {
+    //All functions of bot should go here
     linkGuildDB: require('./Functions/linkGuildToDB')
 }
 
@@ -23,8 +24,8 @@ bot.login(process.env.TOKEN); // Login to Discord
 
 loadCommands(bot); // Load all commands in collection, to the bot
 loadEvents(bot); // Load all commands in collection, to the bot
-loadDatabase(); // Database load /! DEFAULT: FIREBASE SYSTEM
 
+loadDatabase(); // Database load /! DEFAULT: FIREBASE SYSTEM
 console.log("Database Loaded successfully")
 
 //When bot join a guild

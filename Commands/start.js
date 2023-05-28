@@ -15,6 +15,9 @@ module.exports = {
     
     async run(bot, message){
 
+    // Vérifier si on a toutes les variables
+
+
         /*Vérifier si une partie est déjà en cours dans le serveur Discord. 
         Si oui, afficher un message indiquant qu'une partie est déjà en cours et informer les joueurs sur la manière de rejoindre la partie en cours.
 

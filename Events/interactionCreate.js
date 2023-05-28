@@ -9,7 +9,6 @@ module.exports = async (bot, interaction) => {
         if(interaction.commandName === "help") {
 
         //Choice in bot.comands then .filter
-        //Show
         let choices = bot.comands.filter(cmd => cmd.name.includes(entry))
         //  Show                                If nothing is typed,                     
         await interaction.respond(entry === "" ? bot.commands.map(cmd => ({name: cmd.name, value: cmd.name})) : choices.map(choice => ({name: choice.name, value: choice.name})))

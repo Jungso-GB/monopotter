@@ -8,16 +8,19 @@ module.exports = async bot => {
 
     let commands = [];
 
+    //For each loaded command
     bot.commands.forEach(async command => {
 
         let slashCommand = new Discord.SlashCommandBuilder()
         .setName(command.name)
         .setDescription(command.description)
         .setDMPermission(command.dm)
+        // Put permission "Aucune" if no permission is given.
         .setDefaultMemberPermissions(command.permission === "Aucune" ? null : command.permission)
 
         if(command.options?.length >= 1) {
             for(let i = 0; i < command.options.length; i++) {
+                //If it's a string, add command
                 if(command.options[i].type === "STRING") {
                     slashCommand[`add${command.options[i].type.charAt(0).toUpperCase()
                         + command.options[i].type.slice(1).toLowerCase()}Option`]

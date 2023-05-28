@@ -1,14 +1,13 @@
-// SDK Firebase
-// Importez les fonctions dont vous avez besoin à partir des SDK dont vous avez besoin
+// FireBase v8 to works with NodeJS and DiscordJS
 const firebase = require('firebase/app');
 require('firebase/database');
 
 let database;
 
 module.exports = async () => {
-  // Vérifiez si l'application Firebase est déjà initialisée
+  // Verify is Firebase is already initialized
   if (!firebase.apps.length) {
-    // Votre configuration Firebase
+    // Configuration firebase. Put your credentials in .env file
     const firebaseConfig = {
       apiKey: process.env.FIREBASE_API_KEY,
       authDomain: process.env.FIREBASE_AUTHDOMAIN,
@@ -19,11 +18,11 @@ module.exports = async () => {
       measurementId: process.env.FIREBASE_MEASUREMENTID
     };
 
-    // Initialisez l'application Firebase
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
   }
 
-  // Vérifiez si la base de données est déjà initialisée
+  // Verify if Firebase database is already initialized
   if (!database) {
     database = firebase.database();
   }
