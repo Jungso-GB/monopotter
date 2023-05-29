@@ -17,7 +17,7 @@ bot.db = loadDatabase(); // Database
 bot.commands = new Discord.Collection(); // Create collection of commands
 bot.function = {
     //All functions of bot should go here
-    linkGuildDB: require('./Functions/linkGuildToDB')
+    linkGuildDB: require('./Helpers/linkGuildToDB')
 }
 
 bot.login(process.env.TOKEN); // Login to Discord
