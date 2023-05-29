@@ -1,19 +1,46 @@
 const Discord = require('discord.js');
+const createInstanceGame = require('../Classes/createInstanceGame');
 
 module.exports = {
-
-    name: 'start',
-    description: 'Start the Monop Otter!',
+    name: "start",
+    description: "Start a game of Monopoly",
     permission: "Aucune",
-    category: "Game",
     dm: false,
-    /*options: [
-        {
-            autocomplete: false,
+    category: "Monopoly",
+    async execute(bot, message, args) {
+        let gCollection = bot.db.collection(message.guild.id) //Take the database of this discord server
+        
+        // Verify if party is already in progress
+        let gameStatus = gCollection.doc('gameStatus').get().data()
+        console.log(`GameStatus: ${gameStatus}`)
+
+        if (gameStatus == "NotStarted" || gameStatus == "Finished") {
+            return message.reply("A party is already in progress. Use /cancel to cancel the current party.");
+        }else{
+        
+        // Initialiser les variables de la nouvelle partie
+        await createInstanceGame(gCollection)
+        
+        // Créer une instance de jeu
+        
+        // Créer les cases du plateau de jeu
+        
+        // Attribuer un montant de départ à chaque joueur
+        
+        // Inviter les joueurs à rejoindre la partie
+        
+        // Démarrer officiellement la partie
+        
+        // Distribuer les dés aux joueurs
+        
+        // Afficher les informations initiales du jeu aux joueurs
+        
+        // Autres étapes de la commande "start"
+
+        await message.reply('Starting Monop Otter...');
         }
-    ],*/
-    
-    async run(bot, message){
+    }
+}
 
     // Vérifier si on a toutes les variables
 
@@ -38,9 +65,3 @@ En fonction de la case sur laquelle un joueur atterrit, exécuter les actions ap
 Mettre à jour les informations du jeu, y compris les propriétés des joueurs, les montants d'argent, etc.
 
 Afficher les informations mises à jour aux joueurs, y compris leur position sur le plateau de jeu, leur solde d'argent, les propriétés qu'ils possèdent, etc.*/
-
-
-        await message.reply('Starting Monop Otter...');
-    }
-
-}
