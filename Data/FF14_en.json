@@ -1,0 +1,45 @@
+{
+  "special":{
+    "GO":{"name":"Etherite"},
+    "Jail":{"name":"Praetorium"},
+    "Chance":{"name": "Chance"},
+    "Community":{"name": "Otter Mafia"},
+    "Water":{"name": "Water"},
+    "Energy":{"name": "Mana"}
+  },
+
+  "chance_cards":{
+    "1":{"name":"luck1","effect": "luck1"},
+    "2":{"name":"luck1","effect": "luck1"}
+  },
+
+  "estate_set":{
+    "Set1":{
+      "metadata": {
+        "color": "red",
+        "number": "2"
+      },
+
+      "estates": {
+        "1":{"name":"luck1","value": "luck1"},
+        "2":{"name":"luck1","value": "luck1"}
+      }
+    },
+
+    "Set2":{
+      "metadata": {
+        "color": "red",
+        "number": "2"
+      },
+
+      "estates": {
+        "1":{"name":"luck1","value": "luck1"},
+        "2":{"name":"luck1","value": "luck1"}
+      }
+    }
+
+  }
+
+
+
+}

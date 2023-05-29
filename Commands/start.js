@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const createInstanceGame = require('../Classes/createInstanceGame');
+const createInstanceGame = require('../Game/MonopolyGame');
 
 module.exports = {
     name: "start",
@@ -9,6 +9,7 @@ module.exports = {
     category: "Monopoly",
     async execute(bot, message, args) {
         let gCollection = bot.db.collection(message.guild.id) //Take the database of this discord server
+        newGameID = require('../Helpers/findNewGameID').findNewGameID(gCollection);
         
         // Verify if party is already in progress
         let gameStatus = gCollection.doc('gameStatus').get().data()
@@ -18,12 +19,11 @@ module.exports = {
             return message.reply("A party is already in progress. Use /cancel to cancel the current party.");
         }else{
         
-        // Initialiser les variables de la nouvelle partie
-        await createInstanceGame(gCollection)
+        // Game Instance
+        await createInstanceGame(gCollection, newGameID)
         
-        // Créer une instance de jeu
-        
-        // Créer les cases du plateau de jeu
+        // Initialize case
+        await require('../Helpers/createBoard').initializeSpace(gCollection, newGameID)
         
         // Attribuer un montant de départ à chaque joueur
         
