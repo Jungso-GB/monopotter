@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const createInstanceGame = require('../Game/MonopolyGame');
+const MonopolyGame = require('../Game/MonopolyGame');
 
 module.exports = {
     name: "start",
@@ -20,7 +20,7 @@ module.exports = {
         }else{
         
         // Game Instance
-        await createInstanceGame(gCollection, newGameID)
+        await MonopolyGame.initiliaze(gCollection, newGameID)
         
         // Initialize case
         await require('../Helpers/createBoard').initializeSpace(gCollection, newGameID)
