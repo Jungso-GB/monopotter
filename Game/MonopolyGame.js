@@ -21,20 +21,23 @@ class MonopolyGame {
       GameCollection.doc('gameStatus').set("NotStarted"), //"NotStarted", "InGame => When player is playing", "Paused => Waiting player play", "Finished"
       GameCollection.collection('board').doc('currentPlayer').set("none"),
       // Variables admin
-      GameCollection.doc('diceRoll').set(this.gCollection.doc('diceRoll').get('diceRoll')),
-      GameCollection.doc('remainingDays').set(this.gCollection.doc('admin_PlayTime').get('admin_PlayTime')),
-      GameCollection.doc('language').set(this.gCollection.doc('admin_Language').get('admin_Language')),
-      GameCollection.doc('maxplayers').set(this.gCollection.doc('admin_MaxPlayers').get('admin_MaxPlayers')),
-      GameCollection.doc('theme').set(this.gCollection.doc('admin_Theme').get('admin_Theme')),
+      await GameCollection.doc('diceRoll').set(this.gCollection.doc('admin_diceRoll').get('admin_diceRoll')),
+      await GameCollection.doc('rawSize').set(this.gCollection.doc('admin_rawSize').get('admin_rawSize')),
+      await GameCollection.doc('chancePercentage').set(this.gCollection.doc('admin_chancePercentage').get('admin_chancePercentage')),
+      await GameCollection.doc('communityPercentage').set(this.gCollection.doc('admin_communityPercentage').get('admin_communityPercentage')),
+      await GameCollection.doc('remainingDays').set(this.gCollection.doc('admin_PlayTime').get('admin_PlayTime')),
+      await GameCollection.doc('language').set(this.gCollection.doc('admin_Language').get('admin_Language')),
+      await GameCollection.doc('maxplayers').set(this.gCollection.doc('admin_MaxPlayers').get('admin_MaxPlayers')),
+      await GameCollection.doc('theme').set(this.gCollection.doc('admin_Theme').get('admin_Theme')),
     
       // Create board
-      this.board = await this.createBoard(GameCollection.collection('board'));
+      this.board = await this.createBoard();
 
       this.money = initializeMoney(); // Fonction à définir pour attribuer le montant de départ à chaque joueur
       // Autres propriétés de l'instance du jeu
     }
 
-    async createBoard(boardCollection) {
+    async createBoard() {
       const settings = require('../Data/settings.json');
       //Change by theme
       let language = this.gCollection.doc('admin_Language').get('admin_Language');
@@ -51,8 +54,12 @@ class MonopolyGame {
       console.log("Valid theme:" + GameCollection.doc('theme').get().data().theme);
       }
 
+      // Define variables by GameCollection
+      let numCasesRaw = await GameCollection.doc('admin_rawSize').get().data().numCasesRaw;
+      let chancePercentage = await GameCollection.doc('chancePercentage').get().data().numCasesRaw;
+      let communityPercentage = await GameCollection.doc('communityPercentage').get().data().numCasesRaw;
+
       // Create the board
-      //Variable à bien attribuer à partir de la BDD: numCasesRaw, chancePercentage, communityPercentage
       const board = await this.generateBoard(numCasesRaw, chancePercentage, communityPercentage)
 
     // Méthodes et fonctionnalités de l'instance du jeu

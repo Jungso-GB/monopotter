@@ -11,17 +11,17 @@ module.exports = async (bot, guild) => {
       await serversRef.doc(guild.id).set({
         name: guild.name,
         gameStatus: "NotStarted", //"NotStarted", "InGame => When player is playing", "Paused => Waiting player play", "Finished"
-        currentPlayer: "none", // "NotSarted" "noone => Idle player", player
-        diceRoll : 5, // Number of dice to roll each day
+        currentPlayer: "none", //"none => Idle player", player
         remainingDays : 0, // Before finishing the game, how many days the game has left
         // Admin variables
+        admin_diceRoll : 5,
         admin_Language: "en",
         admin_PlayTime: 10, // How many days the game has to be played
         admin_MaxPlayers: 25,
         admin_Theme: "default", // default, FF14
         admin_Money: "$", //Only UTF-8 characters ; Maybe delete and replace in themes
-        admin_chancePercentage: 10, // Percentage
-        admin_communityPercentage: 20, // Percentage
+        admin_chancePercentage: 15, // Percentage of chance card
+        admin_communityPercentage: 25, // Percentage of community card
         admin_rawSize: 11 //Default value of monopoly
       });
       const guildDocRef = serversRef.doc(guild.id); //Collection of the Guild
