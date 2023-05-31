@@ -1,13 +1,16 @@
 {
-  "special":{
+  "unique_cards":{
     "GO":{"name":"GO"},
     "Jail":{"name":"Jail"},
+    "Free park": {"name": "Free Park"},
+    "GoToJail": {"name": "Go To Jail"}
+  },
+  "special":{
     "Chance":{"name": "Chance"},
     "Community":{"name": "Community"},
     "Water":{"name": "Water Service"},
     "Energy":{"name": "Electric Service"},
-    "Taxes": {"name": "Taxes"},
-    "Free park": {"name": "Free Park"}
+    "Taxes": {"name": "Taxes"}
   },
 
   "chance_cards":{

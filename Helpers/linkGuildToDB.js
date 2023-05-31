@@ -19,7 +19,10 @@ module.exports = async (bot, guild) => {
         admin_PlayTime: 10, // How many days the game has to be played
         admin_MaxPlayers: 25,
         admin_Theme: "default", // default, FF14
-        admin_Money: "$", //Only UTF-8 characters
+        admin_Money: "$", //Only UTF-8 characters ; Maybe delete and replace in themes
+        admin_chancePercentage: 10, // Percentage
+        admin_communityPercentage: 20, // Percentage
+        admin_rawSize: 11 //Default value of monopoly
       });
       const guildDocRef = serversRef.doc(guild.id); //Collection of the Guild
 

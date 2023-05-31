@@ -41,7 +41,7 @@ class MonopolyGame {
 
       //Define theme
       //If it's not valid theme
-      if(Objects.value(settings.themes).includes(GameCollection.doc('theme').get().data().theme)){
+      if(!Objects.value(settings.themes).includes(GameCollection.doc('theme').get().data().theme)){
         console.log("Theme not valid:" + GameCollection.doc('theme').get().data().theme + " -> default theme");
         //Select default theme
         let dataJSON = ('../Data/default_' + language + ".json")
@@ -52,34 +52,45 @@ class MonopolyGame {
       }
 
       // Create the board
-      //Variable à bien attribuer à partir de la BDD: numCases, cornerType, chancePercentage, communityPercentage, propertyPercentage
-      const board = await this.generateBoard(numCases, cornerType, chancePercentage, communityPercentage, propertyPercentage)
+      //Variable à bien attribuer à partir de la BDD: numCasesRaw, chancePercentage, communityPercentage
+      const board = await this.generateBoard(numCasesRaw, chancePercentage, communityPercentage)
 
-    
     // Méthodes et fonctionnalités de l'instance du jeu
+
   }
 
-  async generateBoard(numCases, cornerType, chancePercentage, communityPercentage, propertyPercentage) {
+  async generateBoard(numCasesRaw, chancePercentage, communityPercentage) {
     const board = [];
     
-    // Case "Go" au départ
+    // First place
     board.push('GO');
-    
-    // Ajout des autres cases sur le plateau
-    for (let i = 1; i < numCases - 1; i++) {
-      board.push(generateCase(i, chancePercentage, communityPercentage, propertyPercentage));
-    }
-    
-    // Ajout du coin supérieur droit
-    board.push(cornerType);
+    // Generate first raw
+    this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+
+    board.push('Jail')
+
+    this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+
+    board.push('Free Park')
+
+    this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+
+    board.push('Go To Jail')
     
     return board;
   }
+
+  async generateRaw(){
+
+    // Add places on raw
+    for (let i = 1; i < numCasesRaw - 2; i++) {
+      board.push(generateCase(i, chancePercentage, communityPercentage));
+    }
+  }
   
-  async generateCase(position, chancePercentage, communityPercentage, propertyPercentage) {
-    const randomValue = Math.random() * 100;
+  async generateCase(position, chancePercentage, communityPercentage) {
+    const randomValue = Math.random() * 100
     //Voir pour ajouter les cases "Water", "Energy", "Taxes" et "Free Park"
-    
     if (randomValue < chancePercentage) {
       return 'Chance';
     } else if (randomValue < chancePercentage + communityPercentage) {
@@ -88,15 +99,8 @@ class MonopolyGame {
       return 'Estate';
     }
   }
-  
-  // Exemple d'utilisation
-  /*const numCases = 40; // Nombre total de cases sur le plateau
-  const cornerType = 'Coin'; // Type de case pour les angles
-  const chancePercentage = 10; // Pourcentage d'apparition des cases "Chance"
-  const communityPercentage = 10; // Pourcentage d'apparition des cases "Community"
-  const propertyPercentage = 50; // Pourcentage d'apparition des cases "Propriété"*/
-    
  /* // Affichage du plateau généré
+ console.log("Board of Monopoly Game: ")
   for (let i = 0; i < numCases; i++) {
     console.log(`${i + 1}. ${board[i]}`);
   }*/
