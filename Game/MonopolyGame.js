@@ -2,6 +2,7 @@ class MonopolyGame {
     constructor(gCollection, GameID) {
         this.gCollection = gCollection;
         this.GameID = GameID;
+        
     }
     
     // To be async. Call it by .initialize()

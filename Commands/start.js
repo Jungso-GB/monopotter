@@ -1,5 +1,7 @@
 const Discord = require('discord.js');
 const MonopolyGame = require('../Game/MonopolyGame');
+const firebase = require('firebase/app');
+require('firebase/database');
 
 module.exports = {
     name: "start",
@@ -9,7 +11,11 @@ module.exports = {
     category: "Monopoly",
 
     async run(bot, message, args) {
-        const gCollection = bot.db.child(message.guild.id); // Take database of guild
+        const db = firebase.database();
+        const serversRef = db.ref('Servers');
+        const gCollection = serversRef.child(message.guild.id);  // Collection of guild
+        console.log("ID Serveur:" + message.guild.id) //TO DELETE
+
         newGameID = require('../Helpers/findNewGameID').findNewGameID(gCollection);
 
         console.log("newGameID: " + newGameID) // TO DELETE

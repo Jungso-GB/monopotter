@@ -12,7 +12,6 @@ const loadEvents = require('./Loader/loadEvents');
 const loadDatabase = require('./Loader/loadDatabase');
 
 bot.color = "#95A5A6" // Set bot color
-bot.db = loadDatabase(); // Database
 
 bot.commands = new Discord.Collection(); // Create collection of commands
 bot.function = {
@@ -25,7 +24,9 @@ bot.login(process.env.TOKEN); // Login to Discord
 loadCommands(bot); // Load all commands in collection, to the bot
 loadEvents(bot); // Load all commands in collection, to the bot
 
-loadDatabase(); // Database load /! DEFAULT: FIREBASE SYSTEM
+loadDatabase(); // Database er /! DEFAULT: FIREBASE SYSTEM
+
+
 console.log("Database Loaded successfully")
 
 //When bot join a guild

@@ -26,6 +26,4 @@ module.exports = async () => {
   if (!database) {
     database = firebase.database();
   }
-
-  return database;
 };
