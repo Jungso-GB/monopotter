@@ -19,11 +19,8 @@ module.exports = {
             return message.reply("A party is already in progress. Use /cancel to cancel the current party.");
         }else{
         
-        // Game Instance
+        // Game Instance + createBoard
         await MonopolyGame.initiliaze(gCollection, newGameID)
-        
-        // Initialize case
-        await require('../Helpers/createBoard').initializeSpace(gCollection, newGameID)
         
         // Attribuer un montant de départ à chaque joueur
         

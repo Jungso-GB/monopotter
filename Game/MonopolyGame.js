@@ -9,13 +9,11 @@ class MonopolyGame {
         //Create the game's structure in database
             // Have the ID of the last game ; If not, there is a dummyDocs, so ID will be 2
         GameCollection = this.gCollection.collection('games').collection(GameID);
+        console.log("GameCollection: " + GameCollection)
 
       // Create players sub-collection
       await GameCollection.collection('players').set({})
       //dummyDoc will be delete when there is an other document  in the players collection
-
-      // Create board sub-collection
-      await GameCollection.collection('board').set({})
 
       //dummyDoc will be delete when there is an other document  in the board collection
       GameCollection.doc('gameStatus').set("NotStarted"), //"NotStarted", "InGame => When player is playing", "Paused => Waiting player play", "Finished"
@@ -28,12 +26,13 @@ class MonopolyGame {
       await GameCollection.doc('remainingDays').set(this.gCollection.doc('admin_PlayTime').get('admin_PlayTime')),
       await GameCollection.doc('language').set(this.gCollection.doc('admin_Language').get('admin_Language')),
       await GameCollection.doc('maxplayers').set(this.gCollection.doc('admin_MaxPlayers').get('admin_MaxPlayers')),
-      await GameCollection.doc('theme').set(this.gCollection.doc('admin_Theme').get('admin_Theme')),
+      await GameCollection.doc('theme').set(this.gCollection.doc('admin_Theme').get('admin_Theme'));
     
       // Create board
-      this.board = await this.createBoard();
+      await this.createBoard();
 
-      this.money = initializeMoney(); // Fonction à définir pour attribuer le montant de départ à chaque joueur
+      this.initializeMoney(); // Fonction à définir pour attribuer le montant de départ à chaque joueur
+
       // Autres propriétés de l'instance du jeu
     }
 
@@ -62,6 +61,10 @@ class MonopolyGame {
       // Create the board
       const board = await this.generateBoard(numCasesRaw, chancePercentage, communityPercentage)
 
+      // Put board in database
+      GameCollection.collection('board').collection('places').set(board)
+      console.log("Board created"); // A delete
+
     // Méthodes et fonctionnalités de l'instance du jeu
 
   }
@@ -69,20 +72,26 @@ class MonopolyGame {
   async generateBoard(numCasesRaw, chancePercentage, communityPercentage) {
     const board = [];
     
+    const waterCaseExists = false;
+    const energyCaseExists = false;
+    const taxesCaseExists = false;
+
     // First place
     board.push('GO');
-    // Generate first raw
-    this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+    await this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
 
     board.push('Jail')
-
-    this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+    await this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
 
     board.push('Free Park')
-
-    this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+    await this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
 
     board.push('Go To Jail')
+    await this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+
+    delete(energyCaseExists)
+    delete (waterCaseExists)
+    delete(taxesCaseExists)
     
     return board;
   }
@@ -97,11 +106,26 @@ class MonopolyGame {
   
   async generateCase(position, chancePercentage, communityPercentage) {
     const randomValue = Math.random() * 100
-    //Voir pour ajouter les cases "Water", "Energy", "Taxes" et "Free Park"
-    if (randomValue < chancePercentage) {
+
+    // Water place
+    if (!waterCaseExists && randomValue < chancePercentage) {
+      waterCaseExists = true;
+      return 'Water';
+      //Chance place
+    } else if (randomValue < chancePercentage) {
       return 'Chance';
+      // Energy place
+      } else if (!energyCaseExists && randomValue < chancePercentage + communityPercentage) {
+        energyCaseExists = true;
+        return 'Energy';
+        // Taxes place
+      } else if (!taxesCaseExists && randomValue < chancePercentage + communityPercentage + taxesPercentage) {
+        taxesCaseExists = true;
+        return 'Taxes';
+        // Community place
     } else if (randomValue < chancePercentage + communityPercentage) {
       return 'Community';
+      // Estate place
     } else {
       return 'Estate';
     }
