@@ -72,9 +72,9 @@ class MonopolyGame {
   async generateBoard(numCasesRaw, chancePercentage, communityPercentage) {
     const board = [];
     
-    const waterCaseExists = false;
-    const energyCaseExists = false;
-    const taxesCaseExists = false;
+    let waterCaseExists = false;
+    let energyCaseExists = false;
+    let taxesCaseExists = false;
 
     // First place
     board.push('GO');
@@ -88,10 +88,6 @@ class MonopolyGame {
 
     board.push('Go To Jail')
     await this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
-
-    delete(energyCaseExists)
-    delete (waterCaseExists)
-    delete(taxesCaseExists)
     
     return board;
   }

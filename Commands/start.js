@@ -7,9 +7,13 @@ module.exports = {
     permission: "Aucune",
     dm: false,
     category: "Monopoly",
-    async execute(bot, message, args) {
-        let gCollection = bot.db.collection(message.guild.id) //Take the database of this discord server
+
+    async run(bot, message, args) {
+        const gCollection = bot.db.child(message.guild.id); // Take database of guild
         newGameID = require('../Helpers/findNewGameID').findNewGameID(gCollection);
+
+        console.log("newGameID: " + newGameID) // TO DELETE
+        await gCollection.collection('test').set('Coucou')// TO DELETE
         
         // Verify if party is already in progress
         let gameStatus = gCollection.doc('gameStatus').get().data()
