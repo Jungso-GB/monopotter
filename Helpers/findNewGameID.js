@@ -1,7 +1,7 @@
 
 module.exports = {
-
     async run(gCollection){
+        console.log("gCollection:" + gCollection)
         let lastGameQuerySnapshot = gCollection.collection('games').orderBy('ID', 'desc').limit(1).get();
 
         let newGameID;

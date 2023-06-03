@@ -1,8 +1,7 @@
 class MonopolyGame {
     constructor(gCollection, GameID) {
         this.gCollection = gCollection;
-        this.GameID = GameID;
-        
+        this.GameID = GameID;   
     }
     
     // To be async. Call it by .initialize()

@@ -1,13 +1,10 @@
-// FireBase v8 to works with NodeJS and DiscordJS
-const firebase = require('firebase/app');
-require('firebase/database');
+const admin = require('firebase-admin');
 
-let database;
 
-module.exports = async () => {
-  // Verify is Firebase is already initialized
-  if (!firebase.apps.length) {
-    // Configuration firebase. Put your credentials in .env file
+const loadDatabase = () => {
+  // Vérifie si Firebase est déjà initialisé
+  if (!admin.apps.length) {
+    // Configuration Firebase. Placez vos informations d'identification dans le fichier .env
     const firebaseConfig = {
       apiKey: process.env.FIREBASE_API_KEY,
       authDomain: process.env.FIREBASE_AUTHDOMAIN,
@@ -18,12 +15,12 @@ module.exports = async () => {
       measurementId: process.env.FIREBASE_MEASUREMENTID
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+    // Initialise Firebase
+    admin.initializeApp(firebaseConfig);
   }
 
-  // Verify if Firebase database is already initialized
-  if (!database) {
-    database = firebase.database();
-  }
+  const db = admin.firestore();
+  return db;
+
 };
+module.exports = loadDatabase;

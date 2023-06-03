@@ -11,6 +11,7 @@ const loadCommands = require('./Loader/loadCommands');
 const loadEvents = require('./Loader/loadEvents');
 const loadDatabase = require('./Loader/loadDatabase');
 
+
 bot.color = "#95A5A6" // Set bot color
 
 bot.commands = new Discord.Collection(); // Create collection of commands
@@ -24,8 +25,7 @@ bot.login(process.env.TOKEN); // Login to Discord
 loadCommands(bot); // Load all commands in collection, to the bot
 loadEvents(bot); // Load all commands in collection, to the bot
 
-loadDatabase(); // Database er /! DEFAULT: FIREBASE SYSTEM
-
+bot.db = loadDatabase()
 
 console.log("Database Loaded successfully")
 
