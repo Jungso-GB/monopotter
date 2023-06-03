@@ -22,10 +22,10 @@ bot.function = {
 
 bot.login(process.env.TOKEN); // Login to Discord
 
+bot.db = loadDatabase()
+
 loadCommands(bot); // Load all commands in collection, to the bot
 loadEvents(bot); // Load all commands in collection, to the bot
-
-bot.db = loadDatabase()
 
 console.log("Database Loaded successfully")
 

@@ -7,96 +7,97 @@ class MonopolyGame {
     // To be async. Call it by .initialize()
     async initialize(){
         //Create the game's structure in database
-            // Have the ID of the last game ; If not, there is a dummyDocs, so ID will be 2
-        GameCollection = this.gCollection.collection('games').collection(GameID);
-        console.log("GameCollection: " + GameCollection)
+        const GameCollection = this.gCollection.collection('games').doc(newGameID.toString())
 
-      // Create players sub-collection
-      await GameCollection.collection('players').set({})
-      //dummyDoc will be delete when there is an other document  in the players collection
-
-      //dummyDoc will be delete when there is an other document  in the board collection
-      GameCollection.doc('gameStatus').set("NotStarted"), //"NotStarted", "InGame => When player is playing", "Paused => Waiting player play", "Finished"
-      GameCollection.collection('board').doc('currentPlayer').set("none"),
-      // Variables admin
-      await GameCollection.doc('diceRoll').set(this.gCollection.doc('admin_diceRoll').get('admin_diceRoll')),
-      await GameCollection.doc('rawSize').set(this.gCollection.doc('admin_rawSize').get('admin_rawSize')),
-      await GameCollection.doc('chancePercentage').set(this.gCollection.doc('admin_chancePercentage').get('admin_chancePercentage')),
-      await GameCollection.doc('communityPercentage').set(this.gCollection.doc('admin_communityPercentage').get('admin_communityPercentage')),
-      await GameCollection.doc('remainingDays').set(this.gCollection.doc('admin_PlayTime').get('admin_PlayTime')),
-      await GameCollection.doc('language').set(this.gCollection.doc('admin_Language').get('admin_Language')),
-      await GameCollection.doc('maxplayers').set(this.gCollection.doc('admin_MaxPlayers').get('admin_MaxPlayers')),
-      await GameCollection.doc('theme').set(this.gCollection.doc('admin_Theme').get('admin_Theme'));
+      const init_variables = {
+        gameStatus : "NotStarted", //"NotStarted", "InGame => When player is playing", "Paused => Waiting player play", "Finished"
+        currentPlayer : "none",
+        // Variables admin
+        language : (await this.gCollection.get()).data().admin_Language,
+        theme : (await this.gCollection.get()).data().admin_Theme,
+        diceRoll : (await this.gCollection.get()).data().admin_diceRoll,
+        rawSize : (await this.gCollection.get()).data().admin_rawSize,
+        chancePercentage : (await this.gCollection.get()).data().admin_chancePercentage,
+        communityPercentage : (await this.gCollection.get()).data().admin_communityPercentage,
+        remainingDays : (await this.gCollection.get()).data().admin_PlayTime,
+        maxPlayers : (await this.gCollection.get()).data().admin_MaxPlayers    
+      }
+      
+      GameCollection.set(init_variables)
     
       // Create board
-      await this.createBoard();
+      await this.createBoard(GameCollection);
 
       this.initializeMoney(); // Fonction à définir pour attribuer le montant de départ à chaque joueur
 
       // Autres propriétés de l'instance du jeu
     }
 
-    async createBoard() {
+    async createBoard(GameCollection) {
       const settings = require('../Data/settings.json');
       //Change by theme
-      let language = this.gCollection.doc('admin_Language').get('admin_Language');
-
+      const language = (await GameCollection.get()).data().language
       //Define theme
+      const theme = (await GameCollection.get()).data().theme
+
       //If it's not valid theme
-      if(!Objects.value(settings.themes).includes(GameCollection.doc('theme').get().data().theme)){
-        console.log("Theme not valid:" + GameCollection.doc('theme').get().data().theme + " -> default theme");
+      if(!Object.values(settings.themes).includes(theme)){
+        console.log("Theme not valid:" + (await GameCollection.get()).data().theme + " -> default theme");
         //Select default theme
         let dataJSON = ('../Data/default_' + language + ".json")
+        console.log("DATA JSON: " + dataJSON);
       }else{
       //Select theme
       let dataJSON = ('../Data/' + theme + "_" + language + ".json")
-      console.log("Valid theme:" + GameCollection.doc('theme').get().data().theme);
+      console.log("Valid theme:" + (await GameCollection.get()).data().theme);
+      console.log("DATA JSON: " + dataJSON);
       }
 
       // Define variables by GameCollection
-      let numCasesRaw = await GameCollection.doc('admin_rawSize').get().data().numCasesRaw;
-      let chancePercentage = await GameCollection.doc('chancePercentage').get().data().numCasesRaw;
-      let communityPercentage = await GameCollection.doc('communityPercentage').get().data().numCasesRaw;
+      let rawSize = (await GameCollection.get()).data().rawSize;
+      let chancePercentage = (await GameCollection.get()).data().chancePercentage;
+      let communityPercentage = (await GameCollection.get()).data().communityPercentage;
 
       // Create the board
-      const board = await this.generateBoard(numCasesRaw, chancePercentage, communityPercentage)
+      const board = await this.generateBoard(rawSize, chancePercentage, communityPercentage)
 
       // Put board in database
-      GameCollection.collection('board').collection('places').set(board)
+      GameCollection.collection('board').doc('places').set(board)
       console.log("Board created"); // A delete
 
     // Méthodes et fonctionnalités de l'instance du jeu
 
   }
 
-  async generateBoard(numCasesRaw, chancePercentage, communityPercentage) {
-    const board = [];
+  async generateBoard(rawSize, chancePercentage, communityPercentage) {
+    const board = {};
     
     let waterCaseExists = false;
     let energyCaseExists = false;
     let taxesCaseExists = false;
 
     // First place
-    board.push('GO');
-    await this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+    board[1] = "GO";
+    await this.generateRaw(rawSize, 2, chancePercentage, communityPercentage, board)
 
-    board.push('Jail')
-    await this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+    board[rawSize] = "Jail";
+    await this.generateRaw(rawSize * 2, rawSize + 1, chancePercentage, communityPercentage, board)
 
-    board.push('Free Park')
-    await this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+    board[rawSize * 2] = "Free Park";
+    await this.generateRaw(rawSize * 3, (rawSize * 2 + 1), chancePercentage, communityPercentage, board)
 
-    board.push('Go To Jail')
-    await this.generateRaw(numCasesRaw, chancePercentage, communityPercentage)
+    board[rawSize * 3] = "Go To Jail";
+    await this.generateRaw(rawSize * 4, (rawSize * 3 + 1), chancePercentage, communityPercentage, board)
     
+    console.log("BOARD: n\ " + board)
     return board;
   }
 
-  async generateRaw(){
+  async generateRaw(rawSize, startCase, chancePercentage, communityPercentage, board){
 
     // Add places on raw
-    for (let i = 1; i < numCasesRaw - 2; i++) {
-      board.push(generateCase(i, chancePercentage, communityPercentage));
+    for (let i = startCase; i < rawSize - 1; i++) {
+      board[i] = (await this.generateCase(i, chancePercentage, communityPercentage));
     }
   }
   
@@ -104,19 +105,19 @@ class MonopolyGame {
     const randomValue = Math.random() * 100
 
     // Water place
-    if (!waterCaseExists && randomValue < chancePercentage) {
-      waterCaseExists = true;
+    if (!this.generateBoard.waterCaseExists && randomValue < chancePercentage) {
+      this.generateBoard.waterCaseExists = true;
       return 'Water';
       //Chance place
     } else if (randomValue < chancePercentage) {
       return 'Chance';
       // Energy place
-      } else if (!energyCaseExists && randomValue < chancePercentage + communityPercentage) {
-        energyCaseExists = true;
+      } else if (!this.generateBoard.energyCaseExists && randomValue < chancePercentage + communityPercentage) {
+        this.generateBoard.energyCaseExists = true;
         return 'Energy';
         // Taxes place
-      } else if (!taxesCaseExists && randomValue < chancePercentage + communityPercentage + taxesPercentage) {
-        taxesCaseExists = true;
+      } else if (!this.generateBoard.taxesCaseExists && randomValue < chancePercentage + communityPercentage) {
+        this.generateBoard.taxesCaseExists = true;
         return 'Taxes';
         // Community place
     } else if (randomValue < chancePercentage + communityPercentage) {

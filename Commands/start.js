@@ -4,6 +4,7 @@ const firebase = require('firebase/app');
 require('firebase/firestore');
 const loadDatabase = require('../Loader/loadDatabase');
 
+
 module.exports = {
     name: "start",
     description: "Start a game of Monopoly",
@@ -12,25 +13,27 @@ module.exports = {
     category: "Monopoly",
 
     async run(bot, message, args) {
-        const db = loadDatabase();
-        const gCollection = db.collection('Servers').collection(message.guild.id);  // Collection of guild
-        console.log("gCollection in start.js:" + gCollection) //TO DELETE
 
-        newGameID = require('../Helpers/findNewGameID').run(gCollection);
+        let db = await loadDatabase(bot)
 
-        console.log("newGameID: " + newGameID) // TO DELETE
-        await gCollection.collection('test').set('Coucou')// TO DELETE
-        
+        const gCollection = db.collection('Servers').doc(message.guild.id);  // Collection of guild
+
         // Verify if party is already in progress
-        let gameStatus = gCollection.doc('gameStatus').get().data()
+        let gameStatus = (await gCollection.get()).data().gameStatus;
         console.log(`GameStatus: ${gameStatus}`)
 
-        if (gameStatus == "NotStarted" || gameStatus == "Finished") {
+        if (gameStatus !== "NotStarted" && gameStatus !== "Finished") {
             return message.reply("A party is already in progress. Use /cancel to cancel the current party.");
-        }else{
+        }
+
+        //Find the new game ID
+        newGameID = await require('../Helpers/findNewGameID').run(gCollection);
+    
         
         // Game Instance + createBoard
-        await MonopolyGame.initiliaze(gCollection, newGameID)
+        const monopolyGame = new MonopolyGame(gCollection, newGameID);
+        await monopolyGame.initialize();
+
         
         // Attribuer un montant de départ à chaque joueur
         
@@ -47,7 +50,6 @@ module.exports = {
         await message.reply('Starting Monop Otter...');
         }
     }
-}
 
     // Vérifier si on a toutes les variables
 
