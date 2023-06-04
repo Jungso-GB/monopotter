@@ -25,6 +25,8 @@ module.exports = {
         if (gameStatus !== "NotStarted" && gameStatus !== "Finished") {
             return message.reply("A party is already in progress. Use /cancel to cancel the current party.");
         }
+        //To prevent creating a new party during creating of it
+        await gCollection.update({ gameStatus: "Creating" });
 
         //Find the new game ID
         newGameID = await require('../Helpers/findNewGameID').run(gCollection);
