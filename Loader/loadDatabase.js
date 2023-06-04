@@ -19,8 +19,20 @@ const loadDatabase = () => {
     admin.initializeApp(firebaseConfig);
   }
 
-  const db = admin.firestore();
-  return db;
+  let db;
+  let isConnected = false;
+
+  while (!isConnected) {
+    try {
+      db = admin.firestore();
+      isConnected = true;
+      console.log("Database Loaded successfully")
+    } catch (error) {
+      console.log('Error during connect to Firestore :', error);
+      console.log('Try to connect...');
+    }
+  }
+  return db
 
 };
 module.exports = loadDatabase;

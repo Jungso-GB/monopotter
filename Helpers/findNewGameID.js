@@ -1,3 +1,5 @@
+const admin = require('firebase');
+
 const template_Games = {
     gameStatus: "NotStarted", //"NotStarted", "InGame => When player is playing", "Paused => Waiting player play", "Finished"
     currentPlayer: "none", //"none => Idle player", player
@@ -20,10 +22,13 @@ module.exports = {
         let lastGameQuerySnapshot = await gamesCollectionRef.orderBy('ID', 'desc').limit(1).get();
 
         let newGameID;
-        
         if (!lastGameQuerySnapshot.empty) {
-            const lastGameID = await lastGameQuerySnapshot.docs[0].data().ID;
             console.log("lastGameID is not empty");
+
+            console.log("ID lastGame: " + lastGameQuerySnapshot.docs[0].id)
+            const lastGameID = parseInt(lastGameQuerySnapshot.docs[0].id);
+            
+            console.log("New Game ID in condition: " + (lastGameID + 1))
             newGameID = lastGameID + 1;
 
             await gamesCollectionRef.doc(newGameID.toString()).set(template_Games);
@@ -36,6 +41,9 @@ module.exports = {
 
             console.log("Document créé dans la collection 'games'");
         }
+        console.log("New game ID finish: " + newGameID)
+
+        gamesCollectionRef.doc(newGameID.toString()).set({ ID: newGameID.toString() }, { merge: true });
         return newGameID;
     }
 };

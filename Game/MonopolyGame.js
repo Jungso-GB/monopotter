@@ -1,3 +1,4 @@
+const admin = require('firebase');
 class MonopolyGame {
     constructor(gCollection, GameID) {
         this.gCollection = gCollection;
@@ -10,6 +11,7 @@ class MonopolyGame {
         const GameCollection = this.gCollection.collection('games').doc(newGameID.toString())
 
       const init_variables = {
+        ID : parseInt(await GameCollection.id),
         gameStatus : "NotStarted", //"NotStarted", "InGame => When player is playing", "Paused => Waiting player play", "Finished"
         currentPlayer : "none",
         // Variables admin
@@ -21,8 +23,7 @@ class MonopolyGame {
         communityPercentage : (await this.gCollection.get()).data().admin_communityPercentage,
         remainingDays : (await this.gCollection.get()).data().admin_PlayTime,
         maxPlayers : (await this.gCollection.get()).data().admin_MaxPlayers    
-      }
-      
+      }      
       GameCollection.set(init_variables)
     
       // Create board
@@ -45,12 +46,9 @@ class MonopolyGame {
         console.log("Theme not valid:" + (await GameCollection.get()).data().theme + " -> default theme");
         //Select default theme
         let dataJSON = ('../Data/default_' + language + ".json")
-        console.log("DATA JSON: " + dataJSON);
       }else{
       //Select theme
       let dataJSON = ('../Data/' + theme + "_" + language + ".json")
-      console.log("Valid theme:" + (await GameCollection.get()).data().theme);
-      console.log("DATA JSON: " + dataJSON);
       }
 
       // Define variables by GameCollection
@@ -76,20 +74,23 @@ class MonopolyGame {
     let energyCaseExists = false;
     let taxesCaseExists = false;
 
-    // First place
+    // First raw
     board[1] = "GO";
     await this.generateRaw(rawSize, 2, chancePercentage, communityPercentage, board)
 
+    // Second raw
     board[rawSize] = "Jail";
     await this.generateRaw(rawSize * 2, rawSize + 1, chancePercentage, communityPercentage, board)
 
+    // Third raw
     board[rawSize * 2] = "Free Park";
     await this.generateRaw(rawSize * 3, (rawSize * 2 + 1), chancePercentage, communityPercentage, board)
 
+    // Fourth raw
     board[rawSize * 3] = "Go To Jail";
     await this.generateRaw(rawSize * 4, (rawSize * 3 + 1), chancePercentage, communityPercentage, board)
     
-    console.log("BOARD: n\ " + board)
+    console.log("BOARD: n\ " + JSON.stringify(board, null, 2))
     return board;
   }
 

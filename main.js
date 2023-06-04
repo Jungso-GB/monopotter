@@ -27,8 +27,6 @@ bot.db = loadDatabase()
 loadCommands(bot); // Load all commands in collection, to the bot
 loadEvents(bot); // Load all commands in collection, to the bot
 
-console.log("Database Loaded successfully")
-
 //When bot join a guild
 bot.on('guildCreate', async (guild) => {
     await bot.function.linkGuildDB(bot, guild);
