@@ -60,7 +60,18 @@ class MonopolyGame {
       const board = await this.generateBoard(rawSize, chancePercentage, communityPercentage)
 
       // Put board in database
-      GameCollection.collection('board').doc('places').set(board)
+      // Verify if sub-collection board exists
+      const boardCollectionRef = GameCollection.collection('board');
+      const boardCollectionSnapshot = await boardCollectionRef.get();
+
+      // If not create it. => Necessary to put the board in sub-collection 'places'
+      if (boardCollectionSnapshot.empty) {
+        // La sous-collection "board" n'existe pas, la créer
+        await boardCollectionRef.doc('information').set({toDefine : true});
+      }
+
+      console.log("BOARD: \n " + JSON.stringify(board, null, 2))
+      await boardCollectionRef.doc('places').set(board);
       console.log("Board created"); // A delete
 
     // Méthodes et fonctionnalités de l'instance du jeu
@@ -90,14 +101,13 @@ class MonopolyGame {
     board[rawSize * 3] = "Go To Jail";
     await this.generateRaw(rawSize * 4, (rawSize * 3 + 1), chancePercentage, communityPercentage, board)
     
-    console.log("BOARD: n\ " + JSON.stringify(board, null, 2))
     return board;
   }
 
   async generateRaw(rawSize, startCase, chancePercentage, communityPercentage, board){
 
     // Add places on raw
-    for (let i = startCase; i < rawSize - 1; i++) {
+    for (let i = startCase; i <= rawSize - 1; i++) {
       board[i] = (await this.generateCase(i, chancePercentage, communityPercentage));
     }
   }
