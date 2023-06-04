@@ -29,8 +29,6 @@ class MonopolyGame {
       // Create board
       await this.createBoard(GameCollection);
 
-      this.initializeMoney(); // Fonction à définir pour attribuer le montant de départ à chaque joueur
-
       // Autres propriétés de l'instance du jeu
     }
 
@@ -70,7 +68,7 @@ class MonopolyGame {
         await boardCollectionRef.doc('information').set({toDefine : true});
       }
 
-      console.log("BOARD: \n " + JSON.stringify(board, null, 2))
+      // Put board in database
       await boardCollectionRef.doc('places').set(board);
       console.log("Board created"); // A delete
 

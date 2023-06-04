@@ -4,7 +4,6 @@ const firebase = require('firebase/app');
 require('firebase/firestore');
 const loadDatabase = require('../Loader/loadDatabase');
 
-
 module.exports = {
     name: "start",
     description: "Start a game of Monopoly",
@@ -14,19 +13,29 @@ module.exports = {
 
     async run(bot, message, args) {
 
+        const createMessage = new Discord.EmbedBuilder()
+        .setTitle('MONOPOLY !')
+        .setDescription('Come us play to Monopoly !')
+        .addFields(
+            { name: 'Regular field title', value: 'Some value here' },
+            { name: '\u200B', value: '\u200B' },
+            { name: 'Inline field title', value: 'Some value here', inline: true },
+            { name: 'Inline field title', value: 'Some value here', inline: true },
+        )
+        .setColor('#0099ff');
+
         let db = await loadDatabase(bot)
 
         const gCollection = db.collection('Servers').doc(message.guild.id);  // Collection of guild
 
         // Verify if party is already in progress
         let gameStatus = (await gCollection.get()).data().gameStatus;
-        console.log(`GameStatus: ${gameStatus}`)
 
         if (gameStatus !== "NotStarted" && gameStatus !== "Finished") {
             return message.reply("A party is already in progress. Use /cancel to cancel the current party.");
         }
         //To prevent creating a new party during creating of it
-        await gCollection.update({ gameStatus: "Creating" });
+        // A ACTIVER UNE FOIS LE START FINI await gCollection.update({ gameStatus: "Creating" });
 
         //Find the new game ID
         newGameID = await require('../Helpers/findNewGameID').run(gCollection);
@@ -36,20 +45,16 @@ module.exports = {
         const monopolyGame = new MonopolyGame(gCollection, newGameID);
         await monopolyGame.initialize();
 
-        
-        // Attribuer un montant de départ à chaque joueur
+        // Information about new game 
+        message.channel.send({ embeds: [createMessage] })
+        message.reply("Game created successfully.");
+        console.log("Game created successfully");
         
         // Inviter les joueurs à rejoindre la partie
-        
-        // Démarrer officiellement la partie
-        
-        // Distribuer les dés aux joueurs
-        
+                        
         // Afficher les informations initiales du jeu aux joueurs
         
         // Autres étapes de la commande "start"
-
-        await message.reply('Starting Monop Otter...');
         }
     }
 

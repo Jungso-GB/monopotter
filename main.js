@@ -1,6 +1,9 @@
 /* Ideas: 
 - Ping people at 8PM to remember to play
 */
+/* TODOS:
+Ligne 29 - A activer quand commande start finie
+*/
 
 require('dotenv').config();
 const Discord = require('discord.js');
