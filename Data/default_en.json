@@ -1,0 +1,52 @@
+{
+  "unique_cards":{
+    "GO":{"name":"GO"},
+    "Jail":{"name":"Jail"},
+    "Free park": {"name": "Free Park"},
+    "GoToJail": {"name": "Go To Jail"}
+  },
+  "special":{
+    "Chance":{"name": "Chance"},
+    "Community":{"name": "Community"},
+    "Water":{"name": "Water Service"},
+    "Energy":{"name": "Electric Service"},
+    "Taxes": {"name": "Taxes"}
+  },
+
+  "chance_cards":{
+    "1":{"name":"luck1","effect": "luck1"}
+  },
+  "community_cards":{
+    "1":{"name":"community1","effect": "community1"}
+  },
+
+  "estate_set":{
+    "Set1":{
+      "metadata": {
+        "color": "red",
+        "number": "2"
+      },
+
+      "estates": {
+        "1":{"name":"luck1","value": "luck1"},
+        "2":{"name":"luck1","value": "luck1"}
+      }
+    },
+
+    "Set2":{
+      "metadata": {
+        "color": "red",
+        "number": "2"
+      },
+
+      "estates": {
+        "1":{"name":"luck1","value": "luck1"},
+        "2":{"name":"luck1","value": "luck1"}
+      }
+    }
+
+  }
+
+
+
+}

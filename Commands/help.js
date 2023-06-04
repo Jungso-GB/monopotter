@@ -29,8 +29,8 @@ module.exports = {
 
     // If don't put command. So general help
     if(!command) {
-        console.log(command)
         let categories = []
+        //For each command in "Commands" folder
         bot.commands.forEach(command => {
             // We put the category if it's not already in the array
             if(!categories.includes(command.category)) categories.push(command.category)
@@ -43,7 +43,7 @@ module.exports = {
         .setDescription(`Available commands: \`${bot.commands.size}\`\nAvailable categories: \`${categories.length}\``)
         .setTimestamp()
         .setFooter({ text: 'Command of Monop Otter'});
-
+        // We sort in each category
         categories.sort().forEach((cat) => {
             let commands = bot.commands.filter(cmd => cmd.category === cat);
             Embed.addFields({ name: `${cat}`, value: commands.map(cmd => `\`${cmd.name}\` : ${cmd.description}`).join("\n") });

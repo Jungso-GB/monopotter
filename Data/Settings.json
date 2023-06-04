@@ -1,0 +1,10 @@
+{
+    "languages":{
+        "English" : "en",
+        "Francais": "fr"
+    },
+    "themes":{
+        "default": "default",
+        "Final Fantasy 14": "FF14"
+    }
+}

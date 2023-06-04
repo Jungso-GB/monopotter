@@ -1,14 +1,10 @@
-// SDK Firebase
-// Importez les fonctions dont vous avez besoin à partir des SDK dont vous avez besoin
-const firebase = require('firebase/app');
-require('firebase/database');
+const admin = require('firebase');
 
-let database;
 
-module.exports = async () => {
-  // Vérifiez si l'application Firebase est déjà initialisée
-  if (!firebase.apps.length) {
-    // Votre configuration Firebase
+const loadDatabase = () => {
+  // Vérifie si Firebase est déjà initialisé
+  if (!admin.apps.length) {
+    // Configuration Firebase. Placez vos informations d'identification dans le fichier .env
     const firebaseConfig = {
       apiKey: process.env.FIREBASE_API_KEY,
       authDomain: process.env.FIREBASE_AUTHDOMAIN,
@@ -19,14 +15,24 @@ module.exports = async () => {
       measurementId: process.env.FIREBASE_MEASUREMENTID
     };
 
-    // Initialisez l'application Firebase
-    firebase.initializeApp(firebaseConfig);
+    // Initialise Firebase
+    admin.initializeApp(firebaseConfig);
   }
 
-  // Vérifiez si la base de données est déjà initialisée
-  if (!database) {
-    database = firebase.database();
-  }
+  let db;
+  let isConnected = false;
 
-  return database;
+  while (!isConnected) {
+    try {
+      db = admin.firestore();
+      isConnected = true;
+      console.log("Database Loaded successfully")
+    } catch (error) {
+      console.log('Error during connect to Firestore :', error);
+      console.log('Try to connect...');
+    }
+  }
+  return db
+
 };
+module.exports = loadDatabase;

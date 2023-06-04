@@ -1,19 +1,58 @@
 const Discord = require('discord.js');
+const MonopolyGame = require('../Game/MonopolyGame');
+const firebase = require('firebase/app');
+require('firebase/firestore');
+const loadDatabase = require('../Loader/loadDatabase');
+
 
 module.exports = {
-
-    name: 'start',
-    description: 'Start the Monop Otter!',
+    name: "start",
+    description: "Start a game of Monopoly",
     permission: "Aucune",
-    category: "Game",
     dm: false,
-    /*options: [
-        {
-            autocomplete: false,
+    category: "Monopoly",
+
+    async run(bot, message, args) {
+
+        let db = await loadDatabase(bot)
+
+        const gCollection = db.collection('Servers').doc(message.guild.id);  // Collection of guild
+
+        // Verify if party is already in progress
+        let gameStatus = (await gCollection.get()).data().gameStatus;
+        console.log(`GameStatus: ${gameStatus}`)
+
+        if (gameStatus !== "NotStarted" && gameStatus !== "Finished") {
+            return message.reply("A party is already in progress. Use /cancel to cancel the current party.");
         }
-    ],*/
+
+        //Find the new game ID
+        newGameID = await require('../Helpers/findNewGameID').run(gCollection);
     
-    async run(bot, message){
+        
+        // Game Instance + createBoard
+        const monopolyGame = new MonopolyGame(gCollection, newGameID);
+        await monopolyGame.initialize();
+
+        
+        // Attribuer un montant de départ à chaque joueur
+        
+        // Inviter les joueurs à rejoindre la partie
+        
+        // Démarrer officiellement la partie
+        
+        // Distribuer les dés aux joueurs
+        
+        // Afficher les informations initiales du jeu aux joueurs
+        
+        // Autres étapes de la commande "start"
+
+        await message.reply('Starting Monop Otter...');
+        }
+    }
+
+    // Vérifier si on a toutes les variables
+
 
         /*Vérifier si une partie est déjà en cours dans le serveur Discord. 
         Si oui, afficher un message indiquant qu'une partie est déjà en cours et informer les joueurs sur la manière de rejoindre la partie en cours.
@@ -35,9 +74,3 @@ En fonction de la case sur laquelle un joueur atterrit, exécuter les actions ap
 Mettre à jour les informations du jeu, y compris les propriétés des joueurs, les montants d'argent, etc.
 
 Afficher les informations mises à jour aux joueurs, y compris leur position sur le plateau de jeu, leur solde d'argent, les propriétés qu'ils possèdent, etc.*/
-
-
-        await message.reply('Starting Monop Otter...');
-    }
-
-}
