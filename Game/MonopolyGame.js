@@ -2,7 +2,7 @@ const admin = require('firebase');
 class MonopolyGame {
     constructor(gCollection, GameID) {
         this.gCollection = gCollection;
-        this.GameID = GameID;   
+        this.GameID = GameID;
     }
     
     // To be async. Call it by .initialize()
@@ -10,6 +10,7 @@ class MonopolyGame {
         //Create the game's structure in database
         const GameCollection = this.gCollection.collection('games').doc(newGameID.toString())
 
+      //Get current admin variable in new game
       const init_variables = {
         ID : parseInt(await GameCollection.id),
         gameStatus : "NotStarted", //"NotStarted", "InGame => When player is playing", "Paused => Waiting player play", "Finished"
@@ -23,7 +24,8 @@ class MonopolyGame {
         communityPercentage : (await this.gCollection.get()).data().admin_communityPercentage,
         remainingDays : (await this.gCollection.get()).data().admin_PlayTime,
         maxPlayers : (await this.gCollection.get()).data().admin_MaxPlayers    
-      }      
+      }
+      // Push admin variable to firebase
       GameCollection.set(init_variables)
     
       // Create board
@@ -32,9 +34,44 @@ class MonopolyGame {
       // Autres propriétés de l'instance du jeu
     }
 
+    // PLAYER WANT JOIN THE PARTY
+    async join(bot, message) {
+      try {
+        user = message.author;
+        // Select collection of current game
+        const GameCollection = this.gCollection.collection('games').doc((this.gCollection.get()).data().currentGameID.toString());
+    
+        // Verify status of current game
+        let gameStatus = (await this.gCollection.get()).data().gameStatus;
+        if (gameStatus !== "InGame" && gameStatus !== "Paused") {
+          return message.reply("No party is currently in progress. Use /start to create a party.");
+        }
+        const query = GameCollection.collection('players').where('discordID', '==', user.id);
+        const snapshot = await query.get();
+    
+        // If userID is found in the collection of the current game
+        if (!snapshot.empty) {
+          return message.reply("You're already in a current game");
+        }
+    
+        // ... Autres codes ...
+    
+      } catch (error) {
+        console.error("Error in join:", error);
+        // Traitez l'erreur ici (par exemple, envoyez un message d'erreur à l'utilisateur ou effectuez une autre action appropriée)
+      }
+    }
+    
+
+/*
+
+    HELPERS OF CLASS
+
+*/
+
     async createBoard(GameCollection) {
       const settings = require('../Data/settings.json');
-      //Change by theme
+      //Take language 
       const language = (await GameCollection.get()).data().language
       //Define theme
       const theme = (await GameCollection.get()).data().theme
@@ -62,7 +99,7 @@ class MonopolyGame {
       const boardCollectionRef = GameCollection.collection('board');
       const boardCollectionSnapshot = await boardCollectionRef.get();
 
-      // If not create it. => Necessary to put the board in sub-collection 'places'
+      // If not, create it. => Necessary to put the board in sub-collection 'places'
       if (boardCollectionSnapshot.empty) {
         // La sous-collection "board" n'existe pas, la créer
         await boardCollectionRef.doc('information').set({toDefine : true});
@@ -70,9 +107,6 @@ class MonopolyGame {
 
       // Put board in database
       await boardCollectionRef.doc('places').set(board);
-      console.log("Board created"); // A delete
-
-    // Méthodes et fonctionnalités de l'instance du jeu
 
   }
 
@@ -135,13 +169,7 @@ class MonopolyGame {
     } else {
       return 'Estate';
     }
-  }
- /* // Affichage du plateau généré
- console.log("Board of Monopoly Game: ")
-  for (let i = 0; i < numCases; i++) {
-    console.log(`${i + 1}. ${board[i]}`);
-  }*/
-  
+  } 
 
 }
   
