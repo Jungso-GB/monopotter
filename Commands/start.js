@@ -72,6 +72,7 @@ module.exports = {
         // Information and invitation about new game
         await message.reply({ embeds: [embed], components: [button] });
         console.log("Game created successfully");
+        await gCollection.update({ gameStatus: "Idle" });
 
         const collector = message.channel.createMessageComponentCollector();
 

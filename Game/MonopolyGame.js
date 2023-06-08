@@ -13,7 +13,7 @@ class MonopolyGame {
       //Get current admin variable in new game
       const init_variables = {
         ID : parseInt(await GameCollection.id),
-        gameStatus : "NotStarted", //"NotStarted", "InGame => When player is playing", "Paused => Waiting player play", "Finished"
+        gameStatus : "NotStarted", //"NotStarted", "InGame => When player is playing", "Idle => Waiting player play", "Finished"
         currentPlayer : "none",
         // Variables admin
         language : (await this.gCollection.get()).data().admin_Language,
@@ -43,7 +43,7 @@ class MonopolyGame {
     
         // Verify status of current game
         let gameStatus = (await this.gCollection.get()).data().gameStatus;
-        if (gameStatus !== "InGame" && gameStatus !== "Paused") {
+        if (gameStatus !== "InGame" && gameStatus !== "Idle") {
           return message.reply("No party is currently in progress. Use /start to create a party.");
         }
         const query = GameCollection.collection('players').where('discordID', '==', user.id);
