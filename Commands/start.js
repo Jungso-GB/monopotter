@@ -53,7 +53,7 @@ module.exports = {
         let gameStatus = (await gCollection.get()).data().gameStatus;
 
         if (gameStatus !== "NotStarted" && gameStatus !== "Finished") {
-            return message.reply("A party is already in progress. Use /join to join or Use /cancel to cancel the current party.");
+            return message.reply("A party is already in progress. Use /join to join or /cancel to cancel the current party.");
         }
         //To prevent creating a new party during creating of it
         await gCollection.update({ gameStatus: "Creating" });
