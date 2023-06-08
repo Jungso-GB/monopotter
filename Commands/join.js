@@ -13,6 +13,16 @@ module.exports = {
 
     async run(bot, message, args) {
 
+      let db = await loadDatabase(bot)
+      const gCollection = db.collection('Servers').doc(message.guild.id);  // Collection of guild
+      //TODOS : Verify if return current Game ID
+      newGameID = await require('../Helpers/findNewGameID').run(gCollection);
+
+      //Verify if monopolyGame object don't exists
+      if (!start.monopolyGame) {
+        start.monopolyGame = await new MonopolyGame(gCollection, newGameID);
+    }
+
       await start.monopolyGame.join(bot, message);
         }
     }

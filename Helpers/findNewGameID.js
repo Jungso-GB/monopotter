@@ -22,6 +22,14 @@ module.exports = {
         let lastGameQuerySnapshot = await gamesCollectionRef.orderBy('ID', 'desc').limit(1).get();
 
         let newGameID;
+
+        let gameStatus = (await gCollection.get()).data().gameStatus;
+        //Verify is game still active
+        if (gameStatus !== "NotStarted" && gameStatus !== "Finished") {
+            //Last ID game
+            return parseInt(lastGameQuerySnapshot.docs[0].id)
+        }
+
         if (!lastGameQuerySnapshot.empty) {
             const lastGameID = parseInt(lastGameQuerySnapshot.docs[0].id);
             newGameID = lastGameID + 1;
