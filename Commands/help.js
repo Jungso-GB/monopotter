@@ -6,7 +6,7 @@ module.exports = {
     description: "Help about Monop Otter!",
     permission: "Aucune",
     dm: true,
-    category: "Information",
+    category: "User",
     options: [
         {
             type: "STRING",

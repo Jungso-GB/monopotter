@@ -1,18 +1,49 @@
-const Discord = require('discord.js');
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const MonopolyGame = require('../Game/MonopolyGame');
 const firebase = require('firebase/app');
 require('firebase/firestore');
 const loadDatabase = require('../Loader/loadDatabase');
-
 
 module.exports = {
     name: "start",
     description: "Start a game of Monopoly",
     permission: "Aucune",
     dm: false,
-    category: "Monopoly",
+    category: "Admin",
 
     async run(bot, message, args) {
+
+      //Message when party is created
+      const embed = new EmbedBuilder()
+      .setAuthor({
+        name: "Monopotter",
+        url: "https://github.com/Jungso-GB",
+        //iconURL: "URL",
+      })
+      .setTitle("New Monopoly !")
+      .setDescription("There is a new Monopoly game now ! \n\nTheme:\n``` {{theme}}``` \nPlay during:\n``` {{remainingDays}}``` \n\nBe the best, good luck !")
+      //.setImage("https://cubedhuang.com/images/alex-knight-unsplash.webp")
+      //.setThumbnail("https://dan.onl/images/emptysong.jpg")
+      .setColor("#00b0f4")
+      .setFooter({
+        text: "Example Footer",
+        //iconURL: "https://slate.dan.onl/slate.png",
+      })
+      .setTimestamp()
+      .addFields({
+        name: "Join the game !",
+        value: "Click the button below to join",
+      });
+
+      const button = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+        .setCustomId('JoinGameButton')
+        .setLabel('Join !')
+        .setStyle(ButtonStyle.Primary)
+      );
+
+      //START OF FUNCTION
 
         let db = await loadDatabase(bot)
 
@@ -20,11 +51,12 @@ module.exports = {
 
         // Verify if party is already in progress
         let gameStatus = (await gCollection.get()).data().gameStatus;
-        console.log(`GameStatus: ${gameStatus}`)
 
         if (gameStatus !== "NotStarted" && gameStatus !== "Finished") {
-            return message.reply("A party is already in progress. Use /cancel to cancel the current party.");
+            return message.reply("A party is already in progress. Use /join to join or /cancel to cancel the current party.");
         }
+        //To prevent creating a new party during creating of it
+        await gCollection.update({ gameStatus: "Creating" });
 
         //Find the new game ID
         newGameID = await require('../Helpers/findNewGameID').run(gCollection);
@@ -34,29 +66,30 @@ module.exports = {
         const monopolyGame = new MonopolyGame(gCollection, newGameID);
         await monopolyGame.initialize();
 
-        
-        // Attribuer un montant de départ à chaque joueur
-        
-        // Inviter les joueurs à rejoindre la partie
-        
-        // Démarrer officiellement la partie
-        
-        // Distribuer les dés aux joueurs
-        
-        // Afficher les informations initiales du jeu aux joueurs
+        //Put new game ID in server data
+        await gCollection.update({ currentGameID: newGameID });
+
+        // Information and invitation about new game
+        await message.reply({ embeds: [embed], components: [button] });
+        console.log("Game created successfully");
+        await gCollection.collection('games').doc('games').collection(newGameID.toString()).doc(newGameID.toString()).update({ gameStatus: "Idle" });
+        await gCollection.update({ gameStatus: "Idle" });
+
+        // Collect event of message
+        const collector = message.channel.createMessageComponentCollector();
+
+        collector.on('collect', async interaction => {
+          interaction.user.send("You joined the Monopoly ! ")
+          await message.channel.send(`@${interaction.user.username} joined the game !`);
+        });
+                                
         
         // Autres étapes de la commande "start"
-
-        await message.reply('Starting Monop Otter...');
         }
     }
 
     // Vérifier si on a toutes les variables
-
-
-        /*Vérifier si une partie est déjà en cours dans le serveur Discord. 
-        Si oui, afficher un message indiquant qu'une partie est déjà en cours et informer les joueurs sur la manière de rejoindre la partie en cours.
-
+/*
 Si aucune partie n'est en cours, initialiser les variables nécessaires pour démarrer une nouvelle partie.
  Cela peut inclure la création d'une instance de jeu, la création des cases du plateau de jeu, l'attribution d'un montant de départ à chaque joueur, etc.
 
