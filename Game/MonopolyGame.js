@@ -30,6 +30,7 @@ class MonopolyGame {
     
       // Create board
       await this.createBoard(GameCollection);
+      await GameCollection.update({ gameStatus: "Idle" });
 
       // Autres propriétés de l'instance du jeu
     }
@@ -37,24 +38,34 @@ class MonopolyGame {
     // PLAYER WANT JOIN THE PARTY
     async join(bot, message) {
       try {
-        user = message.author;
-        // Select collection of current game
-        const GameCollection = this.gCollection.collection('games').doc((this.gCollection.get()).data().currentGameID.toString());
+
+        // Select collection of current game AND take gameStatus
+        const GameCollection = await this.gCollection.collection('games').doc(this.GameID.toString());
+        let gameStatus = (await GameCollection.get()).data().gameStatus;
+
+        //const GameCollection = this.gCollection.collection('games').doc((this.gCollection.get()).data().currentGameID.toString());
     
         // Verify status of current game
-        let gameStatus = (await this.gCollection.get()).data().gameStatus;
         if (gameStatus !== "InGame" && gameStatus !== "Idle") {
           return message.reply("No party is currently in progress. Use /start to create a party.");
         }
-        const query = GameCollection.collection('players').where('discordID', '==', user.id);
+
+        //Take all data with The member DiscordID
+        const query = GameCollection.collection('players').where('discordID', '==', message.user.id);
         const snapshot = await query.get();
     
         // If userID is found in the collection of the current game
         if (!snapshot.empty) {
           return message.reply("You're already in a current game");
         }
+        
+        //Add player to collection 'players' in the game collection
+        const playersCollectionRef = GameCollection.collection('players')
+        await playersCollectionRef.doc(message.user.id).set({discordID : message.user.id});
     
-        // ... Autres codes ...
+        // CONTINUER LE JOIN
+
+        return message.reply("You joined the game")
     
       } catch (error) {
         console.error("Error in join:", error);

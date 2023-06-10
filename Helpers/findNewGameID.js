@@ -17,6 +17,8 @@ const template_Games = {
 };
 
 module.exports = {
+
+    // TODOS: UNIQUEMENT RETUR LE NOUVEL ID ; LA PARTIE CREATION A METTRE DANS MONOPOLY INIT
     async run(gCollection){
         const gamesCollectionRef = gCollection.collection('games');
         let lastGameQuerySnapshot = await gamesCollectionRef.orderBy('ID', 'desc').limit(1).get();
