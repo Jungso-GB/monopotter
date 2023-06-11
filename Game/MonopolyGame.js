@@ -36,7 +36,7 @@ class MonopolyGame {
     }
 
     // PLAYER WANT JOIN THE PARTY
-    async join(bot, message) {
+    async join(bot, message, interaction) {
       try {
 
         // Select collection of current game AND take gameStatus
@@ -61,8 +61,9 @@ class MonopolyGame {
         
         //Add player to collection 'players' in the game collection
         const playersCollectionRef = GameCollection.collection('players')
-        await playersCollectionRef.doc(message.user.id).set({discordID : message.user.id});
-    
+        //Put DiscordID and first dice
+        await playersCollectionRef.doc(message.user.id).set({discordID : message.user.id, dice : (await GameCollection.get()).data().diceRoll});
+
         // CONTINUER LE JOIN
 
         return message.reply("You joined the game")
@@ -72,6 +73,46 @@ class MonopolyGame {
         // Traitez l'erreur ici (par exemple, envoyez un message d'erreur à l'utilisateur ou effectuez une autre action appropriée)
       }
     }
+
+    async roll(bot, message) {
+
+      // Select collection of current game AND take gameStatus
+      const GameCollection = await this.gCollection.collection('games').doc(this.GameID.toString());
+      let gameStatus = (await GameCollection.get()).data().gameStatus;
+  
+      // Verify status of current game
+      if (gameStatus !== "InGame" && gameStatus !== "Idle") {
+        return message.reply("No party is currently in progress. Use /start to create a party.");
+      }
+
+      //Take all data with The member DiscordID
+      const query = GameCollection.collection('players').where('discordID', '==', message.user.id);
+      const snapshot = await query.get();
+  
+      // If userID is not found in the collection of the current game
+      if (snapshot.empty) {
+        return message.reply("You're not in the game. Use /join to join the Monopoly");
+      }
+
+      const boardRef = GameCollection.collection('board').doc('places').collection('places');
+
+      // Définir un tableau vide "board"
+      const board = [];
+  
+      // Récupérer tous les documents de la collection "places"
+      const querySnapshot = await boardRef.get();
+  
+      // Parcourir les documents et ajouter les données à "board"
+      querySnapshot.forEach((documentSnapshot) => {
+        const data = documentSnapshot.data();
+        board.push(data);
+      });
+  
+      // Utiliser le tableau "board" pour effectuer les opérations nécessaires
+      console.log("Board:", board);
+
+    }
+
     
 
 /*
@@ -180,7 +221,7 @@ class MonopolyGame {
     } else {
       return 'Estate';
     }
-  } 
+  }
 
 }
   

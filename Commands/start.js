@@ -71,9 +71,10 @@ module.exports = {
 
         // Information and invitation about new game
         await message.reply({ embeds: [embed], components: [button] });
-        console.log("Game created successfully");
         await gCollection.collection('games').doc('games').collection(newGameID.toString()).doc(newGameID.toString()).update({ gameStatus: "Idle" });
         await gCollection.update({ gameStatus: "Idle" });
+
+        //PARTY IS CREATED.
 
         // Collect event of message
         const collector = message.channel.createMessageComponentCollector();
