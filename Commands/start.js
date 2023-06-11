@@ -53,7 +53,7 @@ module.exports = {
         let gameStatus = (await gCollection.get()).data().gameStatus;
 
         if (gameStatus !== "NotStarted" && gameStatus !== "Finished") {
-            return message.reply("A party is already in progress. Use /join to join or /cancel to cancel the current party.");
+            return message.reply({content: "A party is already in progress. Use /join to join or /cancel to cancel the current party.", ephemeral: true});
         }
 
         //Find the new game ID

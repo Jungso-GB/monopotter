@@ -70,10 +70,7 @@ class MonopolyGame {
     
         // Verify status of current game
         if (gameStatus !== "InGame" && gameStatus !== "Idle") {
-            //if message
-            if(interactionId == 1){return messageOrInteraction.reply("No party is currently in progress. Use /start to create a party.")}
-          //if not
-          return user.send("No party is currently in progress. Use /start to create a party.");
+          return messageOrInteraction.reply({content: "No party is currently in progress. Use /start to create a party.", ephemeral: true}); true
         }
 
         //Take all data with The member DiscordID
@@ -82,10 +79,7 @@ class MonopolyGame {
     
         // If userID is found in the collection of the current game
         if (!snapshot.empty) {
-          //If message
-          if(interactionId == 1){return messageOrInteraction.reply("You're already in a current game")}
-          //If not
-          return user.send("You're already in a current game");
+          return messageOrInteraction.reply({content: "You're already in a current game", ephemeral : true});
         }
         
         //Add player to collection 'players' in the game collection
@@ -95,9 +89,6 @@ class MonopolyGame {
 
         // CONTINUER LE JOIN
 
-        //if message
-        if(interactionId == 1){return messageOrInteraction.reply("You joined the Monopoly")}
-        //if not
         return messageOrInteraction.reply({ content: "You joined the Monopoly", ephemeral: true})
     
       } catch (error) {
@@ -114,7 +105,7 @@ class MonopolyGame {
   
       // Verify status of current game
       if (gameStatus !== "InGame" && gameStatus !== "Idle") {
-        return message.reply("No party is currently in progress. Use /start to create a party.");
+        return message.reply({content: "No party is currently in progress. Use /start to create a party.", ephemeral: true});
       }
 
       //Take all data with The member DiscordID
@@ -123,7 +114,7 @@ class MonopolyGame {
   
       // If userID is not found in the collection of the current game
       if (snapshot.empty) {
-        return message.reply("You're not in the game. Use /join to join the Monopoly");
+        return message.reply({content: "You're not in the game. Use /join to join the Monopoly", ephemeral: true});
       }
 
       const boardRef = GameCollection.collection('board').doc('places').collection('places');
