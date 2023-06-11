@@ -85,14 +85,13 @@ class MonopolyGame {
         //Add player to collection 'players' in the game collection
         const playersCollectionRef = GameCollection.collection('players')
         //Put DiscordID and first dice
-        await playersCollectionRef.doc(userId).set({discordID : userId, dice : (await GameCollection.get()).data().diceRoll});
-
-        // CONTINUER LE JOIN
+        await playersCollectionRef.doc(userId).set({discordID : userId, dice : (await GameCollection.get()).data().diceRoll, position : 1});
 
         return messageOrInteraction.reply({ content: "You joined the Monopoly", ephemeral: true})
     
       } catch (error) {
         console.error("Error in join:", error);
+        message.reply("Error during join. Show it to developers: \n\n", error);
         // Traitez l'erreur ici (par exemple, envoyez un message d'erreur à l'utilisateur ou effectuez une autre action appropriée)
       }
     }
@@ -126,22 +125,43 @@ class MonopolyGame {
       let totalRoll = 1
       if(playerDice <= 0) {
         return message.reply({content: "You don't have anymore dice. Come back tomorrow ! ", ephemeral: true});
+
       }else if(playerDice == 1){
-        // INFO A TRAITER QUAND Y'A QU'UN DÉ
         const dice1 = await this.rollDice();
         totalRoll = dice1;
         playerSnapshot.docs[0].ref.update({dice : 0})
+
       }else{
         const dice1 = await this.rollDice();
         const dice2 = await this.rollDice();
         totalRoll = await dice1 + dice2;
-        playerSnapshot.docs[0].ref.update({dice : playerDice - 2})      }
+        playerSnapshot.docs[0].ref.update({dice : playerDice - 2})}
     
+        message.reply({content: "Dice result: " + totalRoll + " ! \n\n You're moving on the board...", ephemeral: true});
+      // MOVE ON BOARD
+      // Get board information
+      const boardCollectionRef = GameCollection.collection('board');
+      const boardDoc = await boardCollectionRef.doc('places').get();
+      const board = boardDoc.data();
+
+      //Get player position
+      const playerPosition = playerData.position;
+
+      //Calculate new position
+      let newPosition = playerPosition + totalRoll;
+      if (newPosition > Object.keys(board).length) {
+        //Formule that when you reach the end of the board, you go back to the beginning
+        newPosition = (newPosition - 1) % Object.keys(board).length + 1;
+      }
+
+      // Update position
+      playerSnapshot.docs[0].ref.update({ position: newPosition });
+
+      this.executeSlotAction(board, playerData, newPosition)
+
 
       // la logique de déplacement du joueur sur le plateau en utilisant le résultat du lancer de dés (totalRoll)
       // également effectuer d'autres opérations en fonction des valeurs des dés, comme vérifier les cases spéciales, effectuer des actions, etc.
-
-      message.reply({content: "Dice result: " + totalRoll + " ! \n\n You're moving on the board...", ephemeral: true});
     }
 
     
@@ -151,6 +171,13 @@ class MonopolyGame {
     HELPERS OF CLASS
 
 */
+
+    // When you have a new position
+    async executeSlotAction(board, playerData, newPosition){
+      // LOGIQUE BY SLOT
+      const slotType = board[playerPosition].type
+      //slotType = await boardCollectionRef.doc('places').get()
+    }
 
     async rollDice() {
       return (Math.floor(Math.random() * 6) + 1); // Lance un dé à 6 faces
