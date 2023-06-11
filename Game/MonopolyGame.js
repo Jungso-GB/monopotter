@@ -101,6 +101,7 @@ class MonopolyGame {
 
       // Select collection of current game AND take gameStatus
       const GameCollection = await this.gCollection.collection('games').doc(this.GameID.toString());
+      const gameData = await GameCollection.get();
       let gameStatus = (await GameCollection.get()).data().gameStatus;
   
       // Verify status of current game
@@ -108,32 +109,39 @@ class MonopolyGame {
         return message.reply({content: "No party is currently in progress. Use /start to create a party.", ephemeral: true});
       }
 
-      //Take all data with The member DiscordID
-      const query = GameCollection.collection('players').where('discordID', '==', message.user.id);
-      const snapshot = await query.get();
-  
-      // If userID is not found in the collection of the current game
-      if (snapshot.empty) {
-        return message.reply({content: "You're not in the game. Use /join to join the Monopoly", ephemeral: true});
+      // Take data of player
+      const playerQuery = GameCollection.collection('players').where('discordID', '==', message.user.id);
+      const playerSnapshot = await playerQuery.get();
+    
+      // Verifiy is player is already in party
+      if (playerSnapshot.empty) {
+        return message.reply({content: "You're not in a party. Use /join to join Monopoly.", ephemeral: true});
       }
+    
+      const playerData = playerSnapshot.docs[0].data();
+      const playerName = message.guild.members.cache.get(playerData.discordID).displayName
+      const playerDice = playerData.dice
 
-      const boardRef = GameCollection.collection('board').doc('places').collection('places');
+      //Verify dice number
+      let totalRoll = 1
+      if(playerDice <= 0) {
+        return message.reply({content: "You don't have anymore dice. Come back tomorrow ! ", ephemeral: true});
+      }else if(playerDice == 1){
+        // INFO A TRAITER QUAND Y'A QU'UN DÉ
+        const dice1 = await this.rollDice();
+        totalRoll = dice1;
+        playerSnapshot.docs[0].ref.update({dice : 0})
+      }else{
+        const dice1 = await this.rollDice();
+        const dice2 = await this.rollDice();
+        totalRoll = await dice1 + dice2;
+        playerSnapshot.docs[0].ref.update({dice : playerDice - 2})      }
+    
 
-      // Définir un tableau vide "board"
-      const board = [];
-  
-      // Récupérer tous les documents de la collection "places"
-      const querySnapshot = await boardRef.get();
-  
-      // Parcourir les documents et ajouter les données à "board"
-      querySnapshot.forEach((documentSnapshot) => {
-        const data = documentSnapshot.data();
-        board.push(data);
-      });
-  
-      // Utiliser le tableau "board" pour effectuer les opérations nécessaires
-      console.log("Board:", board);
+      // la logique de déplacement du joueur sur le plateau en utilisant le résultat du lancer de dés (totalRoll)
+      // également effectuer d'autres opérations en fonction des valeurs des dés, comme vérifier les cases spéciales, effectuer des actions, etc.
 
+      message.reply({content: "Dice result: " + totalRoll + " ! \n\n You're moving on the board...", ephemeral: true});
     }
 
     
@@ -143,6 +151,11 @@ class MonopolyGame {
     HELPERS OF CLASS
 
 */
+
+    async rollDice() {
+      return (Math.floor(Math.random() * 6) + 1); // Lance un dé à 6 faces
+    }
+
 
     async createBoard(GameCollection) {
       const settings = require('../Data/settings.json');
