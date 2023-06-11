@@ -1,4 +1,5 @@
 const admin = require('firebase');
+const discord = require('discord.js');
 class MonopolyGame {
     constructor(gCollection, GameID) {
         this.gCollection = gCollection;
@@ -36,8 +37,30 @@ class MonopolyGame {
     }
 
     // PLAYER WANT JOIN THE PARTY
-    async join(bot, message, interaction) {
+    async join(bot, messageOrInteraction) {
       try {
+
+        let user
+        let userId
+        let interactionId
+
+        //Verify if you have message or interaction in args
+        if (messageOrInteraction instanceof discord.CommandInteraction) {
+          interactionId = 1 
+          user = messageOrInteraction.user;
+          userId = messageOrInteraction.user.id;
+          console.log("message")
+        } else if (messageOrInteraction.isCommand()) {
+          interactionId = 2
+          user = messageOrInteraction.user;
+          userId = messageOrInteraction.user.id;
+          console.log("Interaction")
+        }else{
+          interactionId = 3
+          user = messageOrInteraction.user;
+          userId = messageOrInteraction.user.id;
+          //throw new Error("Unsupported interaction type: " + messageOrInteraction.type + " MUST BE Messsage or Interaction")
+        }
 
         // Select collection of current game AND take gameStatus
         const GameCollection = await this.gCollection.collection('games').doc(this.GameID.toString());
@@ -47,26 +70,35 @@ class MonopolyGame {
     
         // Verify status of current game
         if (gameStatus !== "InGame" && gameStatus !== "Idle") {
-          return message.reply("No party is currently in progress. Use /start to create a party.");
+            //if message
+            if(interactionId == 1){return messageOrInteraction.reply("No party is currently in progress. Use /start to create a party.")}
+          //if not
+          return user.send("No party is currently in progress. Use /start to create a party.");
         }
 
         //Take all data with The member DiscordID
-        const query = GameCollection.collection('players').where('discordID', '==', message.user.id);
+        const query = GameCollection.collection('players').where('discordID', '==', userId);
         const snapshot = await query.get();
     
         // If userID is found in the collection of the current game
         if (!snapshot.empty) {
-          return message.reply("You're already in a current game");
+          //If message
+          if(interactionId == 1){return messageOrInteraction.reply("You're already in a current game")}
+          //If not
+          return user.send("You're already in a current game");
         }
         
         //Add player to collection 'players' in the game collection
         const playersCollectionRef = GameCollection.collection('players')
         //Put DiscordID and first dice
-        await playersCollectionRef.doc(message.user.id).set({discordID : message.user.id, dice : (await GameCollection.get()).data().diceRoll});
+        await playersCollectionRef.doc(userId).set({discordID : userId, dice : (await GameCollection.get()).data().diceRoll});
 
         // CONTINUER LE JOIN
 
-        return message.reply("You joined the game")
+        //if message
+        if(interactionId == 1){return messageOrInteraction.reply("You joined the Monopoly")}
+        //if not
+        return messageOrInteraction.reply({ content: "You joined the Monopoly", ephemeral: true})
     
       } catch (error) {
         console.error("Error in join:", error);

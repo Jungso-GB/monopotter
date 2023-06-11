@@ -55,11 +55,12 @@ module.exports = {
         if (gameStatus !== "NotStarted" && gameStatus !== "Finished") {
             return message.reply("A party is already in progress. Use /join to join or /cancel to cancel the current party.");
         }
-        //To prevent creating a new party during creating of it
-        await gCollection.update({ gameStatus: "Creating" });
 
         //Find the new game ID
         newGameID = await require('../Helpers/findNewGameID').run(gCollection);
+
+        //To prevent creating a new party during creating of it
+        await gCollection.update({ gameStatus: "Creating" });
     
         
         // Game Instance + createBoard
@@ -71,7 +72,6 @@ module.exports = {
 
         // Information and invitation about new game
         await message.reply({ embeds: [embed], components: [button] });
-        await gCollection.collection('games').doc('games').collection(newGameID.toString()).doc(newGameID.toString()).update({ gameStatus: "Idle" });
         await gCollection.update({ gameStatus: "Idle" });
 
         //PARTY IS CREATED.
@@ -79,9 +79,10 @@ module.exports = {
         // Collect event of message
         const collector = message.channel.createMessageComponentCollector();
 
-        collector.on('collect', async interaction => {
-          interaction.user.send("You joined the Monopoly ! ")
-          await message.channel.send(`@${interaction.user.username} joined the game !`);
+        collector.on('collect', async (interaction) => {
+          if (interaction.customId === 'JoinGameButton') {
+            await monopolyGame.join(bot, interaction);
+          }
         });
                                 
         
