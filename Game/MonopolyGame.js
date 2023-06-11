@@ -1,4 +1,5 @@
 const admin = require('firebase');
+const discord = require('discord.js');
 class MonopolyGame {
     constructor(gCollection, GameID) {
         this.gCollection = gCollection;
@@ -36,8 +37,30 @@ class MonopolyGame {
     }
 
     // PLAYER WANT JOIN THE PARTY
-    async join(bot, message) {
+    async join(bot, messageOrInteraction) {
       try {
+
+        let user
+        let userId
+        let interactionId
+
+        //Verify if you have message or interaction in args
+        if (messageOrInteraction instanceof discord.CommandInteraction) {
+          interactionId = 1 
+          user = messageOrInteraction.user;
+          userId = messageOrInteraction.user.id;
+          console.log("message")
+        } else if (messageOrInteraction.isCommand()) {
+          interactionId = 2
+          user = messageOrInteraction.user;
+          userId = messageOrInteraction.user.id;
+          console.log("Interaction")
+        }else{
+          interactionId = 3
+          user = messageOrInteraction.user;
+          userId = messageOrInteraction.user.id;
+          //throw new Error("Unsupported interaction type: " + messageOrInteraction.type + " MUST BE Messsage or Interaction")
+        }
 
         // Select collection of current game AND take gameStatus
         const GameCollection = await this.gCollection.collection('games').doc(this.GameID.toString());
@@ -47,31 +70,100 @@ class MonopolyGame {
     
         // Verify status of current game
         if (gameStatus !== "InGame" && gameStatus !== "Idle") {
-          return message.reply("No party is currently in progress. Use /start to create a party.");
+          return messageOrInteraction.reply({content: "No party is currently in progress. Use /start to create a party.", ephemeral: true}); true
         }
 
         //Take all data with The member DiscordID
-        const query = GameCollection.collection('players').where('discordID', '==', message.user.id);
+        const query = GameCollection.collection('players').where('discordID', '==', userId);
         const snapshot = await query.get();
     
         // If userID is found in the collection of the current game
         if (!snapshot.empty) {
-          return message.reply("You're already in a current game");
+          return messageOrInteraction.reply({content: "You're already in a current game", ephemeral : true});
         }
         
         //Add player to collection 'players' in the game collection
         const playersCollectionRef = GameCollection.collection('players')
-        await playersCollectionRef.doc(message.user.id).set({discordID : message.user.id});
-    
-        // CONTINUER LE JOIN
+        //Put DiscordID and first dice
+        await playersCollectionRef.doc(userId).set({discordID : userId, dice : (await GameCollection.get()).data().diceRoll, position : 1});
 
-        return message.reply("You joined the game")
+        return messageOrInteraction.reply({ content: "You joined the Monopoly", ephemeral: true})
     
       } catch (error) {
         console.error("Error in join:", error);
+        message.reply("Error during join. Show it to developers: \n\n", error);
         // Traitez l'erreur ici (par exemple, envoyez un message d'erreur à l'utilisateur ou effectuez une autre action appropriée)
       }
     }
+
+    async roll(bot, message) {
+
+      // Select collection of current game AND take gameStatus
+      const GameCollection = await this.gCollection.collection('games').doc(this.GameID.toString());
+      const gameData = await GameCollection.get();
+      let gameStatus = (await GameCollection.get()).data().gameStatus;
+  
+      // Verify status of current game
+      if (gameStatus !== "InGame" && gameStatus !== "Idle") {
+        return message.reply({content: "No party is currently in progress. Use /start to create a party.", ephemeral: true});
+      }
+
+      // Take data of player
+      const playerQuery = GameCollection.collection('players').where('discordID', '==', message.user.id);
+      const playerSnapshot = await playerQuery.get();
+    
+      // Verifiy is player is already in party
+      if (playerSnapshot.empty) {
+        return message.reply({content: "You're not in a party. Use /join to join Monopoly.", ephemeral: true});
+      }
+    
+      const playerData = playerSnapshot.docs[0].data();
+      const playerName = message.guild.members.cache.get(playerData.discordID).displayName
+      const playerDice = playerData.dice
+
+      //Verify dice number
+      let totalRoll = 1
+      if(playerDice <= 0) {
+        return message.reply({content: "You don't have anymore dice. Come back tomorrow ! ", ephemeral: true});
+
+      }else if(playerDice == 1){
+        const dice1 = await this.rollDice();
+        totalRoll = dice1;
+        playerSnapshot.docs[0].ref.update({dice : 0})
+
+      }else{
+        const dice1 = await this.rollDice();
+        const dice2 = await this.rollDice();
+        totalRoll = await dice1 + dice2;
+        playerSnapshot.docs[0].ref.update({dice : playerDice - 2})}
+    
+        message.reply({content: "Dice result: " + totalRoll + " ! \n\n You're moving on the board...", ephemeral: true});
+      // MOVE ON BOARD
+      // Get board information
+      const boardCollectionRef = GameCollection.collection('board');
+      const boardDoc = await boardCollectionRef.doc('places').get();
+      const board = boardDoc.data();
+
+      //Get player position
+      const playerPosition = playerData.position;
+
+      //Calculate new position
+      let newPosition = playerPosition + totalRoll;
+      if (newPosition > Object.keys(board).length) {
+        //Formule that when you reach the end of the board, you go back to the beginning
+        newPosition = (newPosition - 1) % Object.keys(board).length + 1;
+      }
+
+      // Update position
+      playerSnapshot.docs[0].ref.update({ position: newPosition });
+
+      this.executeSlotAction(board, playerData, newPosition)
+
+
+      // la logique de déplacement du joueur sur le plateau en utilisant le résultat du lancer de dés (totalRoll)
+      // également effectuer d'autres opérations en fonction des valeurs des dés, comme vérifier les cases spéciales, effectuer des actions, etc.
+    }
+
     
 
 /*
@@ -79,6 +171,18 @@ class MonopolyGame {
     HELPERS OF CLASS
 
 */
+
+    // When you have a new position
+    async executeSlotAction(board, playerData, newPosition){
+      // LOGIQUE BY SLOT
+      const slotType = board[playerPosition].type
+      //slotType = await boardCollectionRef.doc('places').get()
+    }
+
+    async rollDice() {
+      return (Math.floor(Math.random() * 6) + 1); // Lance un dé à 6 faces
+    }
+
 
     async createBoard(GameCollection) {
       const settings = require('../Data/settings.json');
@@ -180,7 +284,7 @@ class MonopolyGame {
     } else {
       return 'Estate';
     }
-  } 
+  }
 
 }
   
