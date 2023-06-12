@@ -1,9 +1,9 @@
 {
   "unique_cards":{
-    "GO":{"name":"GO"},
-    "Jail":{"name":"Jail"},
-    "Free park": {"name": "Free Park"},
-    "GoToJail": {"name": "Go To Jail"}
+    "GO":{"name":"GO", "type":"start"},
+    "Jail":{"name":"Jail", "type":"jail"},
+    "FreePark": {"name": "Free Park", "type":"park"},
+    "GoToJail": {"name": "Go To Jail", "type":"gotojail"}
   },
   "special":{
     "Chance":{"name": "Chance"},
