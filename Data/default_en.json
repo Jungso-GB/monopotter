@@ -28,8 +28,8 @@
       },
 
       "estates": {
-        "1":{"name":"luck1","value": "luck1"},
-        "2":{"name":"luck1","value": "luck1"}
+        "1":{"name":"set1estate1","value": "luck1"},
+        "2":{"name":"set1estate2","value": "luck1"}
       }
     },
 
@@ -40,8 +40,8 @@
       },
 
       "estates": {
-        "1":{"name":"luck1","value": "luck1"},
-        "2":{"name":"luck1","value": "luck1"}
+        "1":{"name":"set2estate1","value": "luck1"},
+        "2":{"name":"set2estate2","value": "luck1"}
       }
     }
 

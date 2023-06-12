@@ -310,7 +310,14 @@ class MonopolyGame {
   }
 
   async randomEstate(randomSet) {
-    
+    // Get estate of randomSet
+    const setKeys = Object.keys(randomSet.estates);
+
+    // Choose a random estate of set
+    const randomIndex = Math.floor(Math.random() * setKeys.length);
+
+    // Return the random estate
+    return randomSet.estates[setKeys[randomIndex]];
   }
 
 }
