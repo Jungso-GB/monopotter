@@ -159,8 +159,6 @@ class MonopolyGame {
 
       this.executeSlotAction(board, playerData, newPosition)
 
-
-      // la logique de déplacement du joueur sur le plateau en utilisant le résultat du lancer de dés (totalRoll)
       // également effectuer d'autres opérations en fonction des valeurs des dés, comme vérifier les cases spéciales, effectuer des actions, etc.
     }
 
@@ -175,8 +173,14 @@ class MonopolyGame {
     // When you have a new position
     async executeSlotAction(board, playerData, newPosition){
       // LOGIQUE BY SLOT
-      const slotType = board[playerPosition].type
-      //slotType = await boardCollectionRef.doc('places').get()
+      const slotData = board.places[newPosition]
+      console.log("slotData", slotData)
+
+      const slotType = slotData.type
+      console.log("slotType", slotType)
+      
+
+
     }
 
     async rollDice() {
@@ -191,15 +195,18 @@ class MonopolyGame {
       //Define theme
       const theme = (await GameCollection.get()).data().theme
 
+      let dataJSON
+
       //If it's not valid theme
       if(!Object.values(settings.themes).includes(theme)){
         console.log("Theme not valid:" + (await GameCollection.get()).data().theme + " -> default theme");
         //Select default theme
-        let dataJSON = ('../Data/default_' + language + ".json")
+        dataJSON = require('../Data/default_' + language + ".json")
       }else{
       //Select theme
-      let dataJSON = ('../Data/' + theme + "_" + language + ".json")
+      dataJSON = require('../Data/' + theme + "_" + language + ".json")
       }
+      console.log("DataJSON: " + dataJSON) //Delete
 
       // Define variables by GameCollection
       let rawSize = (await GameCollection.get()).data().rawSize;
@@ -207,7 +214,7 @@ class MonopolyGame {
       let communityPercentage = (await GameCollection.get()).data().communityPercentage;
 
       // Create the board
-      const board = await this.generateBoard(rawSize, chancePercentage, communityPercentage)
+      const board = await this.generateBoard(rawSize, chancePercentage, communityPercentage, dataJSON)
 
       // Put board in database
       // Verify if sub-collection board exists
@@ -225,7 +232,7 @@ class MonopolyGame {
 
   }
 
-  async generateBoard(rawSize, chancePercentage, communityPercentage) {
+  async generateBoard(rawSize, chancePercentage, communityPercentage, dataJSON) {
     const board = {};
     
     let waterCaseExists = false;
@@ -233,57 +240,77 @@ class MonopolyGame {
     let taxesCaseExists = false;
 
     // First raw
-    board[1] = "GO";
-    await this.generateRaw(rawSize, 2, chancePercentage, communityPercentage, board)
+    board[1] = {...dataJSON.unique_cards.GO};
+    await this.generateRaw(rawSize, 2, chancePercentage, communityPercentage, board, dataJSON)
 
     // Second raw
-    board[rawSize] = "Jail";
-    await this.generateRaw(rawSize * 2, rawSize + 1, chancePercentage, communityPercentage, board)
+    board[rawSize] = {...dataJSON.unique_cards.Jail};
+    await this.generateRaw(rawSize * 2, rawSize + 1, chancePercentage, communityPercentage, board, dataJSON)
 
     // Third raw
-    board[rawSize * 2] = "Free Park";
-    await this.generateRaw(rawSize * 3, (rawSize * 2 + 1), chancePercentage, communityPercentage, board)
+    board[rawSize * 2] = {...dataJSON.unique_cards.FreePark};
+    await this.generateRaw(rawSize * 3, (rawSize * 2 + 1), chancePercentage, communityPercentage, board, dataJSON)
 
     // Fourth raw
-    board[rawSize * 3] = "Go To Jail";
-    await this.generateRaw(rawSize * 4, (rawSize * 3 + 1), chancePercentage, communityPercentage, board)
+    board[rawSize * 3] = {...dataJSON.unique_cards.GoToJail};
+    await this.generateRaw(rawSize * 4, (rawSize * 3 + 1), chancePercentage, communityPercentage, board, dataJSON)
     
     return board;
   }
 
-  async generateRaw(rawSize, startCase, chancePercentage, communityPercentage, board){
+  async generateRaw(rawSize, startCase, chancePercentage, communityPercentage, board, dataJSON){
+    
+    // Get key of estate_set
+    const setKeys = Object.keys(dataJSON.estate_set);
+
+    // Choose a random set of keys
+    const randomIndex = Math.floor(Math.random() * setKeys.length);
+
+    // Obtenir le set de données correspondant à l'index aléatoire choisi
+    const randomSet = dataJSON.estate_set[setKeys[randomIndex]];
+
 
     // Add places on raw
     for (let i = startCase; i <= rawSize - 1; i++) {
-      board[i] = (await this.generateCase(i, chancePercentage, communityPercentage));
+      board[i] = (await this.generateCase(i, chancePercentage, communityPercentage, dataJSON, randomSet));
     }
   }
   
-  async generateCase(position, chancePercentage, communityPercentage) {
+  async generateCase(position, chancePercentage, communityPercentage, dataJSON, randomSet) {
+
     const randomValue = Math.random() * 100
 
     // Water place
     if (!this.generateBoard.waterCaseExists && randomValue < chancePercentage) {
       this.generateBoard.waterCaseExists = true;
-      return 'Water';
+      return {...dataJSON.special.Water};
+
       //Chance place
     } else if (randomValue < chancePercentage) {
-      return 'Chance';
+      return {...dataJSON.special.Chance}
+
       // Energy place
       } else if (!this.generateBoard.energyCaseExists && randomValue < chancePercentage + communityPercentage) {
         this.generateBoard.energyCaseExists = true;
-        return 'Energy';
+        return {...dataJSON.special.Energy}
+
         // Taxes place
       } else if (!this.generateBoard.taxesCaseExists && randomValue < chancePercentage + communityPercentage) {
         this.generateBoard.taxesCaseExists = true;
-        return 'Taxes';
+        return {...dataJSON.special.Taxes}
+
         // Community place
     } else if (randomValue < chancePercentage + communityPercentage) {
-      return 'Community';
+      return {...dataJSON.special.Community}
+
       // Estate place
     } else {
-      return 'Estate';
+      return this.randomEstate(randomSet);
     }
+  }
+
+  async randomEstate(randomSet) {
+    
   }
 
 }
