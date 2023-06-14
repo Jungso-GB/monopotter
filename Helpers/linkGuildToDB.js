@@ -22,7 +22,8 @@ module.exports = async (bot, guild) => {
         admin_Money: "$", //Only UTF-8 characters ; Maybe delete and replace in themes
         admin_chancePercentage: 15, // Percentage of chance card
         admin_communityPercentage: 25, // Percentage of community card
-        admin_rawSize: 11 //Default value of monopoly
+        admin_rawSize: 11, //Default value of monopoly
+        admin_coeffValue: 1 //Default value of monopoly
       });
       const guildDocRef = serversRef.doc(guild.id); //Collection of the Guild
 

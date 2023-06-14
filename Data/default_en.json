@@ -14,7 +14,10 @@
   },
 
   "chance_cards":{
-    "1":{"name":"luck1","effect": "luck1"}
+    "1":{"name":"luck1", "type": "chance_cards", "effect": "add", "value": 1, "title": "OMG", "desc": "You win a beauty competition"},
+    "2":{"name":"luck2", "type": "chance_cards", "effect": "sub", "value": -2, "title": "Oops", "desc": "You got a speeding ticket !"},
+    "3":{"name":"luck3", "type": "chance_cards", "effect": "move", "sub_effect": "forward", "case": 2, "title": "Speed up !", "desc": "You have found a ticket train on the street ! Go forwards of"},
+    "4":{"name":"luck3", "type": "chance_cards", "effect": "move", "sub_effect": "backward", "case": 3, "title": "Oops", "desc": "Your mother need you ! Backwards of"}
   },
   "community_cards":{
     "1":{"name":"community1","effect": "community1"}
@@ -28,8 +31,8 @@
       },
 
       "estates": {
-        "1":{"name":"set1estate1","value": "luck1"},
-        "2":{"name":"set1estate2","value": "luck1"}
+        "1":{"name":"set1estate1", "type": "estate", "value": "luck1"},
+        "2":{"name":"set1estate2", "type": "estate", "value": "luck1"}
       }
     },
 

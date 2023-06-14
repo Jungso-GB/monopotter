@@ -24,7 +24,8 @@ class MonopolyGame {
         chancePercentage : (await this.gCollection.get()).data().admin_chancePercentage,
         communityPercentage : (await this.gCollection.get()).data().admin_communityPercentage,
         remainingDays : (await this.gCollection.get()).data().admin_PlayTime,
-        maxPlayers : (await this.gCollection.get()).data().admin_MaxPlayers    
+        maxPlayers : (await this.gCollection.get()).data().admin_MaxPlayers,
+        coeffValue : (await this.gCollection.get()).data().admin_coeffValue   
       }
       // Push admin variable to firebase
       GameCollection.set(init_variables)
@@ -49,12 +50,10 @@ class MonopolyGame {
           interactionId = 1 
           user = messageOrInteraction.user;
           userId = messageOrInteraction.user.id;
-          console.log("message")
         } else if (messageOrInteraction.isCommand()) {
           interactionId = 2
           user = messageOrInteraction.user;
           userId = messageOrInteraction.user.id;
-          console.log("Interaction")
         }else{
           interactionId = 3
           user = messageOrInteraction.user;
@@ -138,11 +137,68 @@ class MonopolyGame {
         playerSnapshot.docs[0].ref.update({dice : playerDice - 2})}
     
         message.reply({content: "Dice result: " + totalRoll + " ! \n\n You're moving on the board...", ephemeral: true});
+      
       // MOVE ON BOARD
+      await this.moveOnBoard(GameCollection, playerData, totalRoll)
+
+      await this.executeSlotAction(board, playerData, newPosition, gameData)
+    }
+
+
+    // When you have a new position
+    async executeSlotAction(board, playerData, newPosition, gameData){
+      const coeffValue = gameData.coeffValue;
+      // LOGIQUE BY SLOT
+      const slotData = board.places[newPosition]
+      console.log("slotData", slotData)
+
+      const slotType = slotData.type
+      console.log("slotType", slotType)
+
+      let value = 0 // Value money about the slot action
+      let message = "" // Message for embed
+
+      //Estate card. Most common type
+      if(slotType === 'estate') {
+      }
+      //Chance card
+      else if (slotType === 'chance_cards'){
+
+        // Add money card
+        if(slotData.effect === 'add'){
+          value = await this.updateMoney(playerData, slotData, coeffValue)
+          message = ("Get " + value)
+
+        } // Sub money card
+        else if(slotData.effect === 'sub'){
+          value = await this.updateMoney(playerData, slotData, coeffValue)
+          message = ("Pay " + value)
+
+        // Move card
+        }else if(slotData.effect === 'move'){
+          await this.moveOnBoard(GameCollection, playerData, slotData.case)
+          // For good message
+          if(slotData.sub_effect === 'forward'){
+            message = ("Forward of :" + slotData.case)
+          }else if(slotData.sub_effect === 'backward'){
+            const negativeToPositive = (slotData.case * -1)
+            message = ("Backward of : " + negativeToPositive)
+          }
+        }
+      }
+    }
+/*
+
+    HELPERS OF CLASS
+
+*/
+
+    async moveOnBoard(GameCollection, playerData, totalRoll){
       // Get board information
       const boardCollectionRef = GameCollection.collection('board');
       const boardDoc = await boardCollectionRef.doc('places').get();
       const board = boardDoc.data();
+
 
       //Get player position
       const playerPosition = playerData.position;
@@ -157,30 +213,19 @@ class MonopolyGame {
       // Update position
       playerSnapshot.docs[0].ref.update({ position: newPosition });
 
-      this.executeSlotAction(board, playerData, newPosition)
-
-      // également effectuer d'autres opérations en fonction des valeurs des dés, comme vérifier les cases spéciales, effectuer des actions, etc.
     }
 
-    
+    // update money 
+    async updateMoney(playerData, slotData, coeffValue){
+      const GameCollection = this.roll.GameCollection
+      const playerMoney = playerData.money 
+      console.log("Game Collection in addMoney: " + GameCollection + " money of player:" + playerMoney) //Delete
 
-/*
+      const varMoney = slotData.value * coeffValue
+      const newMoney = playerData.money - (varMoney)
+      await playerData.money.update({money: newMoney}) 
 
-    HELPERS OF CLASS
-
-*/
-
-    // When you have a new position
-    async executeSlotAction(board, playerData, newPosition){
-      // LOGIQUE BY SLOT
-      const slotData = board.places[newPosition]
-      console.log("slotData", slotData)
-
-      const slotType = slotData.type
-      console.log("slotType", slotType)
-      
-
-
+      return varMoney
     }
 
     async rollDice() {
@@ -266,7 +311,7 @@ class MonopolyGame {
     // Choose a random set of keys
     const randomIndex = Math.floor(Math.random() * setKeys.length);
 
-    // Obtenir le set de données correspondant à l'index aléatoire choisi
+    // Get the random set of estate's set
     const randomSet = dataJSON.estate_set[setKeys[randomIndex]];
 
 
