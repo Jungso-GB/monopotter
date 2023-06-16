@@ -95,7 +95,7 @@ class MonopolyGame {
       }
     }
 
-    async roll(bot, message) {
+    async roll(bot, message, embed) {
 
       // Select collection of current game AND take gameStatus
       const GameCollection = await this.gCollection.collection('games').doc(this.GameID.toString());
@@ -139,53 +139,75 @@ class MonopolyGame {
         message.reply({content: "Dice result: " + totalRoll + " ! \n\n You're moving on the board...", ephemeral: true});
       
       // MOVE ON BOARD
-      await this.moveOnBoard(GameCollection, playerData, totalRoll)
+      // Get board information
+      const boardCollectionRef = GameCollection.collection('board');
+      const boardDoc = await boardCollectionRef.doc('places').get();
+      const board = boardDoc.data();
 
-      await this.executeSlotAction(board, playerData, newPosition, gameData)
+      let newPosition = await this.moveOnBoard(GameCollection, playerData, totalRoll, board)
+
+      const typeCard = await this.executeSlotAction(board, playerData, newPosition, gameData, embed)
+      console.log("typeCard: " + typeCard)
+
+      setTimeout(() => {
+        message.editReply("You are on a " + typeCard + "\'s place ! ")
+      }, 1000);
+    
     }
 
-
     // When you have a new position
-    async executeSlotAction(board, playerData, newPosition, gameData){
+    async executeSlotAction(board, playerData, newPosition, gameData, embed) {
+
+      let typeCardMessage = ""
+
       const coeffValue = gameData.coeffValue;
       // LOGIQUE BY SLOT
-      const slotData = board.places[newPosition]
+      const slotData = board[newPosition.toString()]
       console.log("slotData", slotData)
 
       const slotType = slotData.type
       console.log("slotType", slotType)
+
+      let preMessage = slotData.desc
 
       let value = 0 // Value money about the slot action
       let message = "" // Message for embed
 
       //Estate card. Most common type
       if(slotType === 'estate') {
+        typeCardMessage = "Estate"
+        embed.setTitle("Estate place ! \n" + slotData.title)
+        // TODO 
       }
-      //Chance card
-      else if (slotType === 'chance_cards'){
 
+      //Chance Cards and Community Cards
+      else if (slotType === 'chance_cards' || slotType === 'community_cards'){
+        embed.setTitle("Special cards ! \n" + slotData.title)
+        typeCardMessage = "Chance"
         // Add money card
         if(slotData.effect === 'add'){
           value = await this.updateMoney(playerData, slotData, coeffValue)
-          message = ("Get " + value)
+          embed.setDescription(preMessage + " Get " + value)
 
         } // Sub money card
         else if(slotData.effect === 'sub'){
           value = await this.updateMoney(playerData, slotData, coeffValue)
-          message = ("Pay " + value)
+          embed.setDescription(preMessage + " Pay " + value)
 
         // Move card
         }else if(slotData.effect === 'move'){
-          await this.moveOnBoard(GameCollection, playerData, slotData.case)
+          // You move 
+          await this.moveOnBoard(GameCollection, playerData, slotData.case, board)
           // For good message
           if(slotData.sub_effect === 'forward'){
-            message = ("Forward of :" + slotData.case)
+            embed.setDescription(preMessage + " Forward of :" + slotData.case)
           }else if(slotData.sub_effect === 'backward'){
             const negativeToPositive = (slotData.case * -1)
-            message = ("Backward of : " + negativeToPositive)
+            embed.setDescription(preMessage + " Backward of : " + negativeToPositive)
           }
         }
       }
+      return typeCardMessage;
     }
 /*
 
@@ -193,13 +215,7 @@ class MonopolyGame {
 
 */
 
-    async moveOnBoard(GameCollection, playerData, totalRoll){
-      // Get board information
-      const boardCollectionRef = GameCollection.collection('board');
-      const boardDoc = await boardCollectionRef.doc('places').get();
-      const board = boardDoc.data();
-
-
+    async moveOnBoard(GameCollection, playerData, totalRoll, board){
       //Get player position
       const playerPosition = playerData.position;
 
@@ -210,8 +226,14 @@ class MonopolyGame {
         newPosition = (newPosition - 1) % Object.keys(board).length + 1;
       }
 
+      // Take data of player
+      const playerQuery = GameCollection.collection('players').where('discordID', '==', playerData.discordID);
+      const playerSnapshot = await playerQuery.get();
+
       // Update position
-      playerSnapshot.docs[0].ref.update({ position: newPosition });
+      await playerSnapshot.docs[0].ref.update({ position: newPosition });
+
+      return newPosition
 
     }
 
@@ -223,7 +245,7 @@ class MonopolyGame {
 
       const varMoney = slotData.value * coeffValue
       const newMoney = playerData.money - (varMoney)
-      await playerData.money.update({money: newMoney}) 
+      await playerData.money.update({money: newMoney})
 
       return varMoney
     }
