@@ -146,7 +146,7 @@ class MonopolyGame {
 
       let newPosition = await this.moveOnBoard(GameCollection, playerData, totalRoll, board)
 
-      const typeCard = await this.executeSlotAction(board, playerData, newPosition, gameData, embed)
+      const typeCard = await this.executeSlotAction(board, playerData, newPosition, gameData, embed, GameCollection)
       console.log("typeCard: " + typeCard)
 
       setTimeout(() => {
@@ -156,7 +156,7 @@ class MonopolyGame {
     }
 
     // When you have a new position
-    async executeSlotAction(board, playerData, newPosition, gameData, embed) {
+    async executeSlotAction(board, playerData, newPosition, gameData, embed, GameCollection) {
 
       let typeCardMessage = ""
 
@@ -167,8 +167,6 @@ class MonopolyGame {
 
       const slotType = slotData.type
       console.log("slotType", slotType)
-
-      let preMessage = slotData.desc
 
       let value = 0 // Value money about the slot action
       let message = "" // Message for embed
@@ -182,27 +180,38 @@ class MonopolyGame {
 
       //Chance Cards and Community Cards
       else if (slotType === 'chance_cards' || slotType === 'community_cards'){
-        embed.setTitle("Special cards ! \n" + slotData.title)
         typeCardMessage = "Chance"
+
+        // Choose random card in set 
+        const cardData = await this.chooseRandomCard(slotType, GameCollection)
+        console.log("CARDDATA: " + cardData) // Delete
+        console.log("slot Effect: " + slotData.effect) // Delete
+
+        embed.setTitle("Special cards ! \n" + cardData.title)
+        let preMessage = cardData.desc
+
         // Add money card
-        if(slotData.effect === 'add'){
-          value = await this.updateMoney(playerData, slotData, coeffValue)
+        if(cardData.effect === "add"){
+          value = await this.updateMoney(playerData, cardData, coeffValue)
           embed.setDescription(preMessage + " Get " + value)
+          console.log("add card") // Delete
 
         } // Sub money card
-        else if(slotData.effect === 'sub'){
-          value = await this.updateMoney(playerData, slotData, coeffValue)
+        else if(cardData.effect === "sub"){
+          value = await this.updateMoney(playerData, cardData, coeffValue)
           embed.setDescription(preMessage + " Pay " + value)
+          console.log("sub card") // Delete
 
         // Move card
-        }else if(slotData.effect === 'move'){
+        }else if(cardData.effect === "move"){
+          console.log("move card") // Delete
           // You move 
-          await this.moveOnBoard(GameCollection, playerData, slotData.case, board)
+          await this.moveOnBoard(GameCollection, playerData, cardData.case, board)
           // For good message
-          if(slotData.sub_effect === 'forward'){
-            embed.setDescription(preMessage + " Forward of :" + slotData.case)
-          }else if(slotData.sub_effect === 'backward'){
-            const negativeToPositive = (slotData.case * -1)
+          if(cardData.sub_effect === "forward"){
+            embed.setDescription(preMessage + " Forward of :" + cardData.case)
+          }else if(cardData.sub_effect === "backward"){
+            const negativeToPositive = (cardData.case * -1)
             embed.setDescription(preMessage + " Backward of : " + negativeToPositive)
           }
         }
@@ -215,9 +224,34 @@ class MonopolyGame {
 
 */
 
+    async chooseRandomCard(type, GameCollection){
+      let category = type
+
+      let dataJSON = await this.getDataJSON(GameCollection)
+
+      if(type == 'estate'){category = 'estate_set'}
+
+      // Get key of estate_set
+      console.log("dataJSON: " + JSON.stringify(await dataJSON))
+      console.log('Category: ' + category)
+
+      const setKeys = Object.keys(dataJSON[category]);
+
+    // Choose a random card
+    const randomIndex = Math.floor(Math.random() * setKeys.length);
+
+    // Get the random card
+    const randomCard = dataJSON[category][setKeys[randomIndex]];
+
+    console.log("randomCard: " + JSON.stringify(randomCard))
+
+    return randomCard;
+    }
+
     async moveOnBoard(GameCollection, playerData, totalRoll, board){
       //Get player position
       const playerPosition = playerData.position;
+      console.log("Old position: " + playerPosition) // Delete
 
       //Calculate new position
       let newPosition = playerPosition + totalRoll;
@@ -225,6 +259,7 @@ class MonopolyGame {
         //Formule that when you reach the end of the board, you go back to the beginning
         newPosition = (newPosition - 1) % Object.keys(board).length + 1;
       }
+      console.log("New Position: " + newPosition); // Delete
 
       // Take data of player
       const playerQuery = GameCollection.collection('players').where('discordID', '==', playerData.discordID);
@@ -254,8 +289,7 @@ class MonopolyGame {
       return (Math.floor(Math.random() * 6) + 1); // Lance un dé à 6 faces
     }
 
-
-    async createBoard(GameCollection) {
+    async getDataJSON(GameCollection){
       const settings = require('../Data/settings.json');
       //Take language 
       const language = (await GameCollection.get()).data().language
@@ -273,7 +307,15 @@ class MonopolyGame {
       //Select theme
       dataJSON = require('../Data/' + theme + "_" + language + ".json")
       }
-      console.log("DataJSON: " + dataJSON) //Delete
+
+      return dataJSON
+
+    }
+
+
+    async createBoard(GameCollection) {
+
+      let dataJSON = await getDataJSON(GameCollection)
 
       // Define variables by GameCollection
       let rawSize = (await GameCollection.get()).data().rawSize;

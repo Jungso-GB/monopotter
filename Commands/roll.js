@@ -14,19 +14,21 @@ module.exports = {
 
     async run(bot, message, args) {
 
-      const playerName = message.user.displayName
+      const playerName = message.member.displayName
+      const playerImageURL = await message.user.avatarURL();
+      console.log(playerImageURL)
 
       //Message when party is created
       const embed = new EmbedBuilder()
       .setAuthor({
         name: playerName + " has played !",
         url: "https://github.com/Jungso-GB",
-        iconURL: "https://e1.pxfuel.com/desktop-wallpaper/817/583/desktop-wallpaper-monopoly-guy-png-monopoly-guy-png-png-cliparts-on-clipart-library-monopoly-man-logo.jpg",
+        iconURL: playerImageURL || undefined, // ICONE OF PLAYER
       })
       /*.setTitle() 
       .setDescription()  DEFINE In command roll*/
       //.setImage("https://cubedhuang.com/images/alex-knight-unsplash.webp")
-      .setThumbnail("https://easydrawingguides.com/wp-content/uploads/2022/04/Monopoly-Man-step-by-step-drawing-tutorial-step-10.png")
+      //.setThumbnail("") // URL OF IMAGE CARD
       .setColor("#8F1A1D")
       .setFooter({
         text: "Monopotter",
@@ -39,7 +41,7 @@ module.exports = {
       .addComponents(
         new ButtonBuilder()
         .setCustomId('Roll')
-        .setLabel('Roll again !')
+        .setLabel('Roll')
         .setStyle(ButtonStyle.Primary)
       );
 
@@ -53,6 +55,7 @@ module.exports = {
         start.monopolyGame = await new MonopolyGame(gCollection, newGameID);
     }
     
+    // Start roll function. It return 0 if player doesn't have dice
       let playerDice = await start.monopolyGame.roll(bot, message, embed);
       if(playerDice === 0) {
         return message.reply({content: "You don't have anymore dice. Come back tomorrow ! ", ephemeral: true});
