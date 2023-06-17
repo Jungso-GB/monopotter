@@ -123,7 +123,7 @@ class MonopolyGame {
       //Verify dice number
       let totalRoll = 1
       if(playerDice <= 0) {
-        return message.reply({content: "You don't have anymore dice. Come back tomorrow ! ", ephemeral: true});
+        return 0
 
       }else if(playerDice == 1){
         const dice1 = await this.rollDice();

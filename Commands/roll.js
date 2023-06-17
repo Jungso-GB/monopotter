@@ -53,7 +53,10 @@ module.exports = {
         start.monopolyGame = await new MonopolyGame(gCollection, newGameID);
     }
     
-      await start.monopolyGame.roll(bot, message, embed);
+      let playerDice = await start.monopolyGame.roll(bot, message, embed);
+      if(playerDice === 0) {
+        return message.reply({content: "You don't have anymore dice. Come back tomorrow ! ", ephemeral: true});
+      }
         
         // Message
          // Information and invitation about new game
