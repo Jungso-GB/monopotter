@@ -1,6 +1,7 @@
 /*
 TODOS :
 - Quand on a une carte "move" vers l'arrière mais qu'on est sur un ID bas, on peut aller en position "-1,-2, ..."
+- Donner la valeur des propriétés directement lors de la création du board en fonction du coeff.
 
 */
 
@@ -345,6 +346,7 @@ class MonopolyGame {
         // La sous-collection "board" n'existe pas, la créer
         await boardCollectionRef.doc('information').set({toDefine : true});
       }
+      console.log(JSON.stringify(board))
 
       // Put board in database
       await boardCollectionRef.doc('places').set(board);

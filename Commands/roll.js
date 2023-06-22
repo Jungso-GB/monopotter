@@ -75,8 +75,8 @@ module.exports = {
         const collector = message.channel.createMessageComponentCollector();
 
         collector.on('collect', async (interaction) => {
-          if (interaction.customId === 'JoinGameButton') {
-            await monopolyGame.join(bot, interaction);
+          if (interaction.customId === 'Roll') {
+            await start.monopolyGame.roll(bot, message, embed);
           }
         });
 
