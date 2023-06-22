@@ -1,0 +1,127 @@
+{
+  "unique_cards":{
+    "GO":{"name":"Etherite", "type":"start", "value": 20000},
+    "Jail":{"name":"Praetorium", "type":"jail"},
+    "FreePark": {"name": "Trésor des manderville", "type":"park"},
+    "GoToJail": {"name": "Rhitahtyn", "type":"gotojail"}
+  },
+  "special":{
+    "Chance":{"name": "Carte Cacpot", "type" : "chance_cards"},
+    "Community":{"name": "Carte roulette", "type" : "community_cards"},
+    "Water":{"name": "Sertissage de matéria"},
+    "Energy":{"name": "Réparation"},
+    "Taxes": {"name": "Mission Tataru"}
+  },
+
+  "chance_cards":{
+    "1":{"name":"rapatriement", "type": "chance_cards", "effect": "add", "value": 1, "title": "Rapatriement", "desc": "Retour à la case départ"},
+    "2":{"name":"enterprise", "type": "chance_cards", "effect": "goto", "case": 2, "title": "Speed up !", "desc": "You have found a ticket train on the street ! Go forwards of"},
+    "3":{"name":"tataru", "type": "chance_cards", "effect": "sub", "value": 2, "title": "Tataru est là !", "desc": "Vous devez la rembourser !"},
+    "4":{"name":"mandat1", "type": "chance_cards", "effect": "add", "value": 2500, "title": "Apprivoisement: Adorables marmottes", "desc": "Vous avez accompli un mandat."},
+    "5":{"name":"mentormentor", "type": "chance_cards", "effect": "sub-dice", "value": 3, "title": "Mentor Mentor", "desc": "Vous êtes tombé sur une roulette mentor."},
+    "6":{"name":"gotojail", "type": "chance_cards", "effect": "goto", "value": "jail", "title": "Event de compagnie", "desc": "Votre compagnie veut faire un praeto !"}
+    },
+  "community_cards":{
+    "1":{"name":"anniversaire", "type": "chance_cards", "effect": "add", "value": 1000, "title": "Anniversaire", "desc": "Jour de fête !"},
+    "2":{"name":"luck1", "type": "chance_cards", "effect": "add", "value": 1, "title": "OMG", "desc": "You win a beauty competition"},
+    "3":{"name":"luck2", "type": "chance_cards", "effect": "sub", "value": -2, "title": "Oops", "desc": "You got a speeding ticket !"},
+    "4":{"name":"luck3", "type": "chance_cards", "effect": "move", "sub_effect": "backward", "case": -3, "title": "Oops", "desc": "Your mother need you ! Backwards of"}
+  },
+
+  "estate_set":{
+    "Thanalan":{
+      "metadata": {
+        "color": "yellow",
+        "number": "1"
+      },
+      "train":{
+        "name":"Aérodrome d'Uldah", "type": "train", "value": 50000
+      },
+
+      "estates": {
+        "1":{"name":"Gold saucer", "type": "estate", "value": 700000},
+        "2":{"name":"Refuge des sables", "type": "estate", "value": 18000},
+        "3":{"name":"Palais de Nanamo", "type": "estate", "value": 21000},
+        "4":{"name":"Petite Ala'Migho", "type": "estate", "value": 11000},
+        "5":{"name":"Oasis des sables", "type": "estate", "value": 7500},
+        "6":{"name":"Marché du Saphir", "type": "estate", "value": 15000},
+        "7":{"name":"Grande mascarade", "type": "estate", "value": 17000},
+        "8":{"name":"Les Immortels", "type": "estate", "value": 18000},
+        "9":{"name":"Bar Sables Mouvants", "type": "estate", "value": 18000},
+        "10":{"name":"Brume bleue", "type": "estate", "value": 13000}
+      }
+    },
+
+    "Noscea":{
+      "metadata": {
+        "color": "red",
+        "number": "2"
+      },
+      "train":{
+        "name":"Aérodrome Limsa Lominsa", "type": "train", "value": 50000
+      },
+
+      "estates": {
+        "1":{"name":"Costa del sol", "type": "estate", "value": 700000},
+        "2":{"name":"Brumée 6", "type": "estate", "value": 22000},
+        "3":{"name":"Baie de Moraby", "type": "estate", "value": 20000},
+        "4":{"name":"Le Bismarck", "type": "estate", "value": 11000},
+        "5":{"name":"Phare de Sirius", "type": "estate", "value": 7500},
+        "6":{"name":"Le Maelstrom", "type": "estate", "value": 18000},
+        "7":{"name":"L'antre des loups", "type": "estate", "value": 17000},
+        "8":{"name":"Camp du lac d'Airain", "type": "estate", "value": 13000},
+        "9":{"name":"Port-Aux-Vins", "type": "estate", "value": 18000},
+        "10":{"name":"Palais du Vagabond", "type": "estate", "value": 9000}
+      }
+    },
+
+    "Sombrelinceuil":{
+      "metadata": {
+        "color": "green",
+        "number": "3"
+      },
+      "train":{
+        "name":"Aérodrome de Gridania", "type": "train", "value": 50000
+      },
+
+      "estates": {
+        "1":{"name":"Sanctuaire des Douzes", "type": "estate", "value": 700000},
+        "2":{"name":"Manoir des Haukke", "type": "estate", "value": 22000},
+        "3":{"name":"Les deux vipères", "type": "estate", "value": 20000},
+        "4":{"name":"Arbre du jugement", "type": "estate", "value": 11000},
+        "5":{"name":"Lisière des ronces", "type": "estate", "value": 7500},
+        "6":{"name":"Lavandière", "type": "estate", "value": 18000},
+        "7":{"name":"Moulin de la Clairière", "type": "estate", "value": 17000},
+        "8":{"name":"Cité perdue d'Amdapor", "type": "estate", "value": 13000},
+        "9":{"name":"Amphitéâtre de Mih Khetto", "type": "estate", "value": 18000},
+        "10":{"name":"Fontaine d'Urth", "type": "estate", "value": 9000}
+      }
+    },
+    "Coerthas":{
+      "metadata": {
+        "color": "blue",
+        "number": "4"
+      },
+      "train":{
+        "name":"Aérodrome de Ishgard", "type": "train", "value": 50000
+      },
+
+      "estates": {
+        "1":{"name":"Cathédrale de St Coinach", "type": "estate", "value": 700000},
+        "2":{"name":"Amphithéâtre d'Akh Afah", "type": "estate", "value": 22000},
+        "3":{"name":"Empyrée", "type": "estate", "value": 20000},
+        "4":{"name":"Tête de dragon", "type": "estate", "value": 11000},
+        "5":{"name":"Nid Mog", "type": "estate", "value": 7500},
+        "6":{"name":"La Peinne", "type": "estate", "value": 12000},
+        "7":{"name":"Antre de Béhémoth", "type": "estate", "value": 17000},
+        "8":{"name":"Auberge du chevalier oublié", "type": "estate", "value": 13000},
+        "9":{"name":"Val d'Aurum", "type": "estate", "value": 8000},
+        "10":{"name":"Vigile de pierre", "type":"estate", "value": 17000}
+      }
+    }
+
+  }
+
+
+
+}
