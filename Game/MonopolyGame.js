@@ -1,3 +1,9 @@
+/*
+TODOS :
+- Quand on a une carte "move" vers l'arrière mais qu'on est sur un ID bas, on peut aller en position "-1,-2, ..."
+
+*/
+
 const admin = require('firebase');
 const discord = require('discord.js');
 class MonopolyGame {
@@ -99,7 +105,7 @@ class MonopolyGame {
 
       // Select collection of current game AND take gameStatus
       const GameCollection = await this.gCollection.collection('games').doc(this.GameID.toString());
-      const gameData = await GameCollection.get();
+      const gameData = (await GameCollection.get()).data();
       let gameStatus = (await GameCollection.get()).data().gameStatus;
   
       // Verify status of current game
@@ -146,7 +152,7 @@ class MonopolyGame {
 
       let newPosition = await this.moveOnBoard(GameCollection, playerData, totalRoll, board)
 
-      const typeCard = await this.executeSlotAction(board, playerData, newPosition, gameData, embed, GameCollection)
+      const typeCard = await this.executeSlotAction(board, playerData, newPosition, gameData, embed, GameCollection, playerSnapshot)
       console.log("typeCard: " + typeCard)
 
       setTimeout(() => {
@@ -156,11 +162,12 @@ class MonopolyGame {
     }
 
     // When you have a new position
-    async executeSlotAction(board, playerData, newPosition, gameData, embed, GameCollection) {
+    async executeSlotAction(board, playerData, newPosition, gameData, embed, GameCollection, playerSnapshot) {
 
       let typeCardMessage = ""
 
       const coeffValue = gameData.coeffValue;
+      console.log('coeffValue in executeSlotAction()' + coeffValue);
       // LOGIQUE BY SLOT
       const slotData = board[newPosition.toString()]
       console.log("slotData", slotData)
@@ -192,13 +199,13 @@ class MonopolyGame {
 
         // Add money card
         if(cardData.effect === "add"){
-          value = await this.updateMoney(playerData, cardData, coeffValue)
+          value = await this.updateMoney(playerData, cardData, coeffValue, playerSnapshot, GameCollection)
           embed.setDescription(preMessage + " Get " + value)
           console.log("add card") // Delete
 
         } // Sub money card
         else if(cardData.effect === "sub"){
-          value = await this.updateMoney(playerData, cardData, coeffValue)
+          value = await this.updateMoney(playerData, cardData, coeffValue, playerSnapshot, GameCollection)
           embed.setDescription(preMessage + " Pay " + value)
           console.log("sub card") // Delete
 
@@ -273,14 +280,17 @@ class MonopolyGame {
     }
 
     // update money 
-    async updateMoney(playerData, slotData, coeffValue){
-      const GameCollection = this.roll.GameCollection
+    async updateMoney(playerData, slotData, coeffValue, playerSnapshot, GameCollection){
+      
       const playerMoney = playerData.money 
       console.log("Game Collection in addMoney: " + GameCollection + " money of player:" + playerMoney) //Delete
 
       const varMoney = slotData.value * coeffValue
+      console.log('varMoney: ' + varMoney + 'slotData.value: ' + slotData.value + 'coeffValue: ' + coeffValue)
       const newMoney = playerData.money - (varMoney)
-      await playerData.money.update({money: newMoney})
+      //await playerData.money.update({money: newMoney})
+      console.log('newMoney: ' + newMoney)
+      await playerSnapshot.docs[0].ref.update({money : newMoney})
 
       return varMoney
     }

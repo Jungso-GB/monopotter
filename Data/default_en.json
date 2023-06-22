@@ -20,7 +20,9 @@
     "4":{"name":"luck3", "type": "chance_cards", "effect": "move", "sub_effect": "backward", "case": -3, "title": "Oops", "desc": "Your mother need you ! Backwards of"}
   },
   "community_cards":{
-    "1":{"name":"community1","effect": "community1"}
+    "2":{"name":"luck2", "type": "chance_cards", "effect": "sub", "value": -2, "title": "Oops", "desc": "You got a speeding ticket !"},
+    "1":{"name":"luck1", "type": "chance_cards", "effect": "add", "value": 1, "title": "OMG", "desc": "You win a beauty competition"}
+
   },
 
   "estate_set":{
