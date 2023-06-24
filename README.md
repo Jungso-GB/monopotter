@@ -26,8 +26,7 @@
 
 
 ## Description
-
-  The most complete Monopoly game on Discord!
+The most complete Monopoly game on Discord!
 
 
 
@@ -47,14 +46,15 @@
 
 To install and use the Monop'Otter, follow these step-by-step instructions:
 
-Clone the GitHub repository: Start by cloning the GitHub repository to your local machine using the command:
-git clone https://github.com/jungso-gb/monopotter.git
+1. Clone the GitHub repository: Start by cloning the GitHub repository to your local machine using the command:
+```git clone https://github.com/jungso-gb/monopotter.git```
 
-Install Node.js: If you don't have Node.js installed on your machine, download and install it from the official website: https://nodejs.org/en/.
-Install dependencies: Navigate to the project directory in your terminal and run the following command to install the required dependencies:
-npm install --save inquirer fs
+2. Install Node.js: If you don't have Node.js installed on your machine, download and install it from the official website: https://nodejs.org/en/.
+3. Install dependencies: Navigate to the project directory in your terminal and run the following command to install the required dependencies:
+```npm install --save inquirer fs```
 
 Create .env file with your credentials like this:
+```
 TOKEN=
 FIREBASE_API_KEY=
 FIREBASE_AUTHDOMAIN=
@@ -63,9 +63,10 @@ FIREBASE_STORAGEBUCKET=
 FIREBASE_MSGSENDER=
 FIREBASE_APPID=
 FIREBASE_MEASUREMENTID=
+```
 
 Run the discord bot:
-node main.js
+```node main.js```
 
 
 
