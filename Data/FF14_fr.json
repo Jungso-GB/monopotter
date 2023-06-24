@@ -14,17 +14,17 @@
   },
 
   "chance_cards":{
-    "1":{"name":"Rapatriement", "type": "chance_cards", "effect": "add", "value": 1, "desc": "Retour à la case départ"},
-    "3":{"name":"Tataru est là !", "type": "chance_cards", "effect": "sub", "value": -2, "desc": "Vous devez la rembourser !"},
-    "4":{"name":"Apprivoisement: Adorables marmottes", "type": "chance_cards", "effect": "add", "value": 2500, "desc": "Vous avez accompli un mandat."},
-    "5":{"name":"Mentor Mentor", "type": "chance_cards", "effect": "sub-dice", "value": -3, "desc": "Vous êtes tombé sur une roulette mentor."},
-    "6":{"name":"Event de compagnie", "type": "chance_cards", "effect": "goto", "value": "jail", "desc": "Votre compagnie veut faire un praeto !"}
+    "1":{"name":"Rapatriement", "type": "chance_cards", "effect": "money", "sub_effect1": "add", "value": 1, "desc": "Retour à la case départ"},
+    "3":{"name":"Tataru est là !", "type": "chance_cards", "effect": "money", "sub_effect1": "sub", "value": -2, "desc": "Vous devez la rembourser !"},
+    "4":{"name":"Apprivoisement: Adorables marmottes", "type": "chance_cards", "effect": "money", "sub_effect1": "add", "value": 2500, "desc": "Vous avez accompli un mandat."},
+    "5":{"name":"Mentor Mentor", "type": "chance_cards", "effect": "dice", "sub_effect1": "sub", "value": -3, "desc": "Vous êtes tombé sur une roulette mentor."},
+    "6":{"name":"Event de compagnie", "type": "chance_cards", "effect": "move", "sub_effect1": "goto", "value": "jail", "desc": "Votre compagnie veut faire un praeto !"}
     },
   "community_cards":{
-    "1":{"name":"Anniversaire", "type": "chance_cards", "effect": "add", "value": 1000, "desc": "Jour de fête !"},
-    "2":{"name":"Omg", "type": "chance_cards", "effect": "add", "value": 1, "desc": "You win a beauty competition"},
-    "3":{"name":"Oops", "type": "chance_cards", "effect": "sub", "value": -2, "desc": "You got a speeding ticket !"},
-    "4":{"name":"Arrière toute", "type": "chance_cards", "effect": "move", "sub_effect": "backward", "case": -3, "desc": "Your mother need you ! Backwards of"}
+    "1":{"name":"Anniversaire", "type": "chance_cards", "effect": "money", "sub_effect1": "add", "value": 1000, "desc": "Jour de fête !"},
+    "2":{"name":"Omg", "type": "chance_cards", "effect": "money", "sub_effect1": "add", "value": 1, "desc": "You win a beauty competition"},
+    "3":{"name":"Oops", "type": "chance_cards", "effect": "money", "sub_effect1": "sub", "value": -2, "desc": "You got a speeding ticket !"},
+    "4":{"name":"Arrière toute", "type": "chance_cards", "effect": "move", "sub_effect1": "backward", "case": -3, "desc": "Your mother need you ! Backwards of"}
   },
 
   "estate_set":{

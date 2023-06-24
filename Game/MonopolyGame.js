@@ -192,39 +192,8 @@ class MonopolyGame {
       else if (slotType === 'chance_cards' || slotType === 'community_cards'){
         typeCardMessage = "Chance"
 
-        // Choose random card in set 
-        const cardData = await this.chooseRandomCard(slotType, GameCollection)
-        console.log("CARDDATA: " + JSON.stringify(cardData)) // Delete
-        console.log("slot Effect: " + slotData.effect) // Delete
+        await this.specialCardPlay(board, playerData, embed, GameCollection, playerSnapshot, slotData)
 
-        embed.setTitle("Special Card ! \n" + cardData.name)
-        let preMessage = cardData.desc
-
-        // Add money card
-        if(cardData.effect === "add"){
-          value = await this.updateMoney(playerData, cardData.value, playerSnapshot, GameCollection)
-          embed.setDescription(preMessage + " Get " + value)
-          console.log("add card") // Delete
-
-        } // Sub money card
-        else if(cardData.effect === "sub"){
-          value = await this.updateMoney(playerData, cardData.value, playerSnapshot, GameCollection)
-          embed.setDescription(preMessage + " Pay " + value)
-          console.log("sub card") // Delete
-
-        // Move card
-        }else if(cardData.effect === "move"){
-          console.log("move card") // Delete
-          // You move 
-          await this.moveOnBoard(GameCollection, playerData, cardData.case, board)
-          // For good message
-          if(cardData.sub_effect === "forward"){
-            embed.setDescription(preMessage + " Forward of :" + cardData.case)
-          }else if(cardData.sub_effect === "backward"){
-            const negativeToPositive = (cardData.case * -1)
-            embed.setDescription(preMessage + " Backward of : " + negativeToPositive)
-          }
-        }
       }
       // If it's not estate or special card, show unique place
       else {
@@ -237,13 +206,12 @@ class MonopolyGame {
 
           // Park case
         }else if(slotData.type === "park"){
-          const parkMoney = GameCollection.collection('board').doc('informations').get().data().communityBank
+          const parkMoney = (await GameCollection.collection('board').doc('information').get()).data().communityBank
+          console.log("parkMoney: " + parkMoney)
           value = await this.updateMoney(playerData, parkMoney, playerSnapshot, GameCollection)
           embed.setDescription("You got all the community money ! Get " + value)
       }
       }
-
-
       typeCardMessage = slotData.name
       return typeCardMessage;
     }
@@ -252,6 +220,52 @@ class MonopolyGame {
     HELPERS OF CLASS
 
 */
+
+    async specialCardPlay(board, playerData, embed, GameCollection, playerSnapshot, slotData){
+      // Choose random card in set 
+      const slotType = slotData.type
+      let value = 0
+
+      const cardData = await this.chooseRandomCard(slotType, GameCollection)
+      embed.setTitle("Special Card ! \n" + cardData.name)
+      let preMessage = cardData.desc
+
+      // Money card, most common effect
+      if(cardData.effect === "money"){
+        value = await this.updateMoney(playerData, cardData.value, playerSnapshot, GameCollection)
+        //Add
+        if(cardData.sub_effect1 === "add") {embed.setDescription(preMessage + " Get " + value)}
+        //Sub
+        else if(cardData.sub_effect1 === "sub"){embed.setDescription(preMessage + " Pay " + (cardData.value * -1))}
+        //Send TO
+        else if(cardData.sub_effect1 === "sendto"){
+
+        }
+      }
+
+      // Move card, second common effect
+      else if(cardData.effect === "move"){
+        // You move 
+        await this.moveOnBoard(GameCollection, playerData, cardData.case, board)
+        // For good message
+        if(cardData.sub_effect1 === "forward"){
+          embed.setDescription(preMessage + " Forward of :" + cardData.case)
+        }else if(cardData.sub_effect1 === "backward"){
+          const negativeToPositive = (cardData.case * -1)
+          embed.setDescription(preMessage + " Backward of : " + negativeToPositive)
+        }else if(cardData.sub_effect1 === "goto"){
+          //TODO 
+        }
+      }
+      else if(cardData.effect === "dice"){
+
+        value = await this.updateDice(playerData, cardData.value, playerSnapshot, GameCollection)
+
+        if(cardData.sub_effect1 === "add") {embed.setDescription(preMessage + " Win " + value + " dice")}
+        else if(cardData.sub_effect1 === "sub"){embed.setDescription(preMessage + " Lose " + (cardData.value * -1) + " dice" )}
+        
+      }
+    }
 
     async chooseRandomCard(type, GameCollection){
       let category = type
@@ -299,6 +313,20 @@ class MonopolyGame {
 
       return newPosition
 
+    }
+
+    // update dice 
+    async updateDice(playerData, value, playerSnapshot, GameCollection){
+      
+      const playerDice = playerData.dice 
+      console.log("Game Collection in updateDice: " + GameCollection + " dice of player:" + playerDice) //Delete
+
+      let newDice = playerData.dice + value
+      if(newDice < 0){newDice = 0}
+      console.log('newDice: ' + newDice)
+      await playerSnapshot.docs[0].ref.update({dice : newDice})
+
+      return value
     }
 
     // update money 
