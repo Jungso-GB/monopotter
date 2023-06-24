@@ -15,9 +15,9 @@
 
   "chance_cards":{
     "1":{"name":"Rapatriement", "type": "chance_cards", "effect": "add", "value": 1, "desc": "Retour à la case départ"},
-    "3":{"name":"Tataru est là !", "type": "chance_cards", "effect": "sub", "value": 2, "desc": "Vous devez la rembourser !"},
+    "3":{"name":"Tataru est là !", "type": "chance_cards", "effect": "sub", "value": -2, "desc": "Vous devez la rembourser !"},
     "4":{"name":"Apprivoisement: Adorables marmottes", "type": "chance_cards", "effect": "add", "value": 2500, "desc": "Vous avez accompli un mandat."},
-    "5":{"name":"Mentor Mentor", "type": "chance_cards", "effect": "sub-dice", "value": 3, "desc": "Vous êtes tombé sur une roulette mentor."},
+    "5":{"name":"Mentor Mentor", "type": "chance_cards", "effect": "sub-dice", "value": -3, "desc": "Vous êtes tombé sur une roulette mentor."},
     "6":{"name":"Event de compagnie", "type": "chance_cards", "effect": "goto", "value": "jail", "desc": "Votre compagnie veut faire un praeto !"}
     },
   "community_cards":{

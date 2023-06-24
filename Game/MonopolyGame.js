@@ -32,7 +32,6 @@ class MonopolyGame {
         communityPercentage : (await this.gCollection.get()).data().admin_communityPercentage,
         remainingDays : (await this.gCollection.get()).data().admin_PlayTime,
         maxPlayers : (await this.gCollection.get()).data().admin_MaxPlayers,
-        coeffValue : (await this.gCollection.get()).data().admin_coeffValue   
       }
       // Push admin variable to firebase
       GameCollection.set(init_variables)
@@ -47,6 +46,8 @@ class MonopolyGame {
     // PLAYER WANT JOIN THE PARTY
     async join(bot, messageOrInteraction) {
       try {
+
+        let defaultMoney = 10000
 
         let user
         let userId
@@ -91,7 +92,7 @@ class MonopolyGame {
         //Add player to collection 'players' in the game collection
         const playersCollectionRef = GameCollection.collection('players')
         //Put DiscordID and first dice
-        await playersCollectionRef.doc(userId).set({discordID : userId, dice : (await GameCollection.get()).data().diceRoll, position : 1});
+        await playersCollectionRef.doc(userId).set({discordID : userId, dice : (await GameCollection.get()).data().diceRoll, position : 1, money: defaultMoney});
 
         return messageOrInteraction.reply({ content: "You joined the Monopoly", ephemeral: true})
     
@@ -157,7 +158,7 @@ class MonopolyGame {
       console.log("typeCard: " + typeCard)
 
       setTimeout(() => {
-        message.editReply("You are on a " + typeCard + "\'s place ! ")
+        message.editReply("You're going to " + typeCard + " ! ")
       }, 1000);
     
     }
@@ -167,8 +168,6 @@ class MonopolyGame {
 
       let typeCardMessage = ""
 
-      const coeffValue = gameData.coeffValue;
-      console.log('coeffValue in executeSlotAction()' + coeffValue);
       // LOGIQUE BY SLOT
       const slotData = board[newPosition.toString()]
       console.log("slotData", slotData)
@@ -177,36 +176,39 @@ class MonopolyGame {
       console.log("slotType", slotType)
 
       let value = 0 // Value money about the slot action
-      let message = "" // Message for embed
 
       //Estate card. Most common type
       if(slotType === 'estate') {
         typeCardMessage = "Estate"
         embed.setTitle("Estate place ! \n" + slotData.title)
-        // TODO 
+        embed.setTitle(slotData.name) // Show name of estate
+        /* TODO 
+        - Avoir le propriétaire s'il y a
+
+        */
       }
 
-      //Chance Cards and Community Cards
+      //Chance Cards and Community Cards, second most common type
       else if (slotType === 'chance_cards' || slotType === 'community_cards'){
         typeCardMessage = "Chance"
 
         // Choose random card in set 
         const cardData = await this.chooseRandomCard(slotType, GameCollection)
-        console.log("CARDDATA: " + cardData) // Delete
+        console.log("CARDDATA: " + JSON.stringify(cardData)) // Delete
         console.log("slot Effect: " + slotData.effect) // Delete
 
-        embed.setTitle("Special cards ! \n" + cardData.title)
+        embed.setTitle("Special Card ! \n" + cardData.name)
         let preMessage = cardData.desc
 
         // Add money card
         if(cardData.effect === "add"){
-          value = await this.updateMoney(playerData, cardData, coeffValue, playerSnapshot, GameCollection)
+          value = await this.updateMoney(playerData, cardData.value, playerSnapshot, GameCollection)
           embed.setDescription(preMessage + " Get " + value)
           console.log("add card") // Delete
 
         } // Sub money card
         else if(cardData.effect === "sub"){
-          value = await this.updateMoney(playerData, cardData, coeffValue, playerSnapshot, GameCollection)
+          value = await this.updateMoney(playerData, cardData.value, playerSnapshot, GameCollection)
           embed.setDescription(preMessage + " Pay " + value)
           console.log("sub card") // Delete
 
@@ -224,6 +226,25 @@ class MonopolyGame {
           }
         }
       }
+      // If it's not estate or special card, show unique place
+      else {
+        embed.setTitle("Unique place ! \n" + slotData.name)
+
+        // Start case
+        if(slotData.type === "start"){
+          value = await this.updateMoney(playerData, slotData.value, playerSnapshot, GameCollection)
+          embed.setDescription("Round money. Get " + value)
+
+          // Park case
+        }else if(slotData.type === "park"){
+          const parkMoney = GameCollection.collection('board').doc('informations').get().data().communityBank
+          value = await this.updateMoney(playerData, parkMoney, playerSnapshot, GameCollection)
+          embed.setDescription("You got all the community money ! Get " + value)
+      }
+      }
+
+
+      typeCardMessage = slotData.name
       return typeCardMessage;
     }
 /*
@@ -281,19 +302,17 @@ class MonopolyGame {
     }
 
     // update money 
-    async updateMoney(playerData, slotData, coeffValue, playerSnapshot, GameCollection){
+    async updateMoney(playerData, value, playerSnapshot, GameCollection){
       
       const playerMoney = playerData.money 
       console.log("Game Collection in addMoney: " + GameCollection + " money of player:" + playerMoney) //Delete
 
-      const varMoney = slotData.value * coeffValue
-      console.log('varMoney: ' + varMoney + 'slotData.value: ' + slotData.value + 'coeffValue: ' + coeffValue)
-      const newMoney = playerData.money - (varMoney)
+      const newMoney = playerData.money + value
       //await playerData.money.update({money: newMoney})
       console.log('newMoney: ' + newMoney)
       await playerSnapshot.docs[0].ref.update({money : newMoney})
 
-      return varMoney
+      return value
     }
 
     async rollDice() {
@@ -323,10 +342,9 @@ class MonopolyGame {
 
     }
 
-
     async createBoard(GameCollection) {
 
-      let dataJSON = await getDataJSON(GameCollection)
+      let dataJSON = await this.getDataJSON(GameCollection)
 
       // Define variables by GameCollection
       let rawSize = (await GameCollection.get()).data().rawSize;
@@ -344,7 +362,7 @@ class MonopolyGame {
       // If not, create it. => Necessary to put the board in sub-collection 'places'
       if (boardCollectionSnapshot.empty) {
         // La sous-collection "board" n'existe pas, la créer
-        await boardCollectionRef.doc('information').set({toDefine : true});
+        await boardCollectionRef.doc('information').set({communityBank : 0});
       }
       console.log(JSON.stringify(board))
 
